@@ -919,6 +919,8 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            customIds.Add(RDM.Verstone);
+            customIds.Add(RDM.Verfire);
             customIds.Add(16477);
             customIds.Add(88);
             customIds.Add(84);
