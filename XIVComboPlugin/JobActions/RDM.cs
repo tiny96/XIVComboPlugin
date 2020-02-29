@@ -34,6 +34,7 @@
             LevelVerstone = 30,
             LevelVerfire = 26,
             LevelVeraero = 10,
+            LevelVerthunder = 4,
             LevelJolt2 = 62;
     }
 }
