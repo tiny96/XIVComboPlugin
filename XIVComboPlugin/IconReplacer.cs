@@ -826,10 +826,8 @@ namespace XIVComboPlugin
                     }
                     if (level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerstoneReady))
                         return RDM.Verstone;
-                    if (level >= RDM.LevelVeraero && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                    if (level >= RDM.LevelVeraero)
                         return RDM.Veraero;
-                    // Debating to fallback to Jolt2/Jolt.  Might be a bit too much automation
-                    // return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
                 }
                 if (actionID == RDM.Verfire) {
                     if (comboTime > 0) {
@@ -840,10 +838,8 @@ namespace XIVComboPlugin
                     }
                     if (level >= RDM.LevelVerfire && SearchBuffArray(RDM.BuffVerfireReady))
                         return RDM.Verfire;
-                    if (level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                    if (level >= RDM.LevelVerthunder)
                         return RDM.Verthunder;
-                    // Debating to fallback to Jolt2/Jolt.  Might be a bit too much automation
-                    // return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
                 }
             }
 
