@@ -815,7 +815,7 @@ namespace XIVComboPlugin
 
             // RED MAGE
            
-            // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder
+            // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder / Jolt
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageSTCombo)) {
                 if (actionID == RDM.Verstone) {
                     if (comboTime > 0) {
@@ -826,8 +826,9 @@ namespace XIVComboPlugin
                     }
                     if (level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerstoneReady))
                         return RDM.Verstone;
-                    if (level >= RDM.LevelVeraero)
+                    if (level >= RDM.LevelVeraero && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
                         return RDM.Veraero;
+                    return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
                 }
                 if (actionID == RDM.Verfire) {
                     if (comboTime > 0) {
@@ -838,8 +839,9 @@ namespace XIVComboPlugin
                     }
                     if (level >= RDM.LevelVerfire && SearchBuffArray(RDM.BuffVerfireReady))
                         return RDM.Verfire;
-                    if (level >= RDM.LevelVerthunder)
+                    if (level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
                         return RDM.Verthunder;
+                    return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
                 }
             }
 
