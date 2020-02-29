@@ -21,7 +21,6 @@
             Verfire = 7510,
             Verholy = 7526,
             Verflare = 7525,
-            Veraero = 7507,
             Scorch = 16530;
         public static short 
             BuffSwiftCast = 167,
