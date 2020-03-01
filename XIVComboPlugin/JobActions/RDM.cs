@@ -35,6 +35,9 @@
             LevelVerfire = 26,
             LevelVeraero = 10,
             LevelVerthunder = 4,
-            LevelJolt2 = 62;
+            LevelJolt2 = 62,
+            LevelImpact = 66,
+            LevelZwerchhau = 35,
+            LevelRedoublement = 50;
     }
 }

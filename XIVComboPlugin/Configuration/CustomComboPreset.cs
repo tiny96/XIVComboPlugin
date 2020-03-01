@@ -165,7 +165,7 @@ namespace XIVComboPlugin
         [CustomComboInfo("Redoublement combo", "Replaces Redoublement with its combo chain, following enchantment rules", 35)]
         RedMageMeleeCombo = 1L << 49,
 
-        [CustomComboInfo("Red Mage ST Combo", "Replaces Verstone/Verfire with Scorch/Verholy/Verflare/Veraero/Verfire", 35)]
+        [CustomComboInfo("Red Mage ST Combo", "Replaces Verstone/Verfire with Scorch/Verholy/Verflare/Veraero/Verfire/Jolt", 35)]
         RedMageSTCombo = 1L << 50
            
     }

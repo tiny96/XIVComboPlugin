@@ -817,17 +817,28 @@ namespace XIVComboPlugin
            
             // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder / Jolt
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageSTCombo)) {
+                var gauge = clientState.JobGauges.Get<RDMGauge>();
                 if (actionID == RDM.Verstone) {
                     if (comboTime > 0) {
                         if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
                             return RDM.Scorch;
                         if (level >= RDM.LevelVerholy && lastMove == RDM.ERedoublement) 
-                            return RDM.Verholy;
+                            return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verholy : RDM.Verflare;
                     }
+                    // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
+                    if (level >= RDM.LevelVerfire && level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerfireReady) && SearchBuffArray(RDM.BuffVerstoneReady))
+                        return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verstone : RDM.Verfire;
+
                     if (level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerstoneReady))
                         return RDM.Verstone;
+
+                    // If we have Dualcast or Swiftcast up, evaluate based on gauges
+                    if (level >= RDM.LevelVeraero && level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                        return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Veraero : RDM.Verthunder;
+
                     if (level >= RDM.LevelVeraero && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
                         return RDM.Veraero;
+
                     return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
                 }
                 if (actionID == RDM.Verfire) {
@@ -835,10 +846,19 @@ namespace XIVComboPlugin
                         if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
                             return RDM.Scorch;
                         if (level >= RDM.LevelVerflare && lastMove == RDM.ERedoublement) 
-                            return RDM.Verflare;
+                            return (gauge.BlackGauge > gauge.WhiteGauge && level >= RDM.LevelVerholy) ? RDM.Verholy : RDM.Verflare;
                     }
+                    // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
+                    if (level >= RDM.LevelVerfire && level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerfireReady) && SearchBuffArray(RDM.BuffVerstoneReady))
+                        return (gauge.BlackGauge <= gauge.WhiteGauge) ? RDM.Verfire : RDM.Verstone;
+
                     if (level >= RDM.LevelVerfire && SearchBuffArray(RDM.BuffVerfireReady))
                         return RDM.Verfire;
+
+                    // If we have Dualcast or Swiftcast up, evaluate based on gauges
+                    if (level >= RDM.LevelVeraero && level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                        return (gauge.BlackGauge <= gauge.WhiteGauge) ? RDM.Verthunder : RDM.Veraero;
+
                     if (level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
                         return RDM.Verthunder;
                     return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
@@ -848,50 +868,40 @@ namespace XIVComboPlugin
             // Replace Veraero/thunder 2 with Impact when Dualcast is active
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageAoECombo))
             {
+                var gauge = clientState.JobGauges.Get<RDMGauge>();
                 if (actionID == RDM.Veraero2)
                 {
-                    if (SearchBuffArray(167) || SearchBuffArray(1249))
-                    {
-                        if (level >= 66) return RDM.Impact;
-                        return RDM.Scatter;
-                    }
-                    return RDM.Veraero2;
+                    if (SearchBuffArray(RDM.BuffSwiftCast) || SearchBuffArray(RDM.BuffDualCast))
+                        return (level >= RDM.LevelImpact) ? RDM.Impact : RDM.Scatter;
+
+                    return gauge.BlackGauge >= gauge.WhiteGauge ? RDM.Veraero2 : RDM.Verthunder2;
                 }
 
                 if (actionID == RDM.Verthunder2)
                 {
-                    if (SearchBuffArray(167) || SearchBuffArray(1249))
-                    {
-                        if (level >= 66) return RDM.Impact;
-                        return RDM.Scatter;
-                    }
-                    return RDM.Verthunder2;
+                    if (SearchBuffArray(RDM.BuffSwiftCast) || SearchBuffArray(RDM.BuffDualCast))
+                        return (level >= RDM.LevelImpact) ? RDM.Impact : RDM.Scatter;
+
+                    return gauge.BlackGauge > gauge.WhiteGauge ? RDM.Veraero2 : RDM.Verthunder2;
                 }
             }
-
 
             // Replace Redoublement with Redoublement combo, Enchanted if possible.
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageMeleeCombo))
                 if (actionID == RDM.Redoublement)
                 {
                     var gauge = clientState.JobGauges.Get<RDMGauge>();
-                    if ((lastMove == RDM.Riposte || lastMove == RDM.ERiposte) && level >= 35)
+                    if ((lastMove == RDM.Riposte || lastMove == RDM.ERiposte) && level >= RDM.LevelZwerchhau)
                     {
-                        if (gauge.BlackGauge >= 25 && gauge.WhiteGauge >= 25)
-                            return RDM.EZwerchhau;
-                        return RDM.Zwerchhau;
+                        return (gauge.BlackGauge >= 25 && gauge.WhiteGauge >= 25) ? RDM.EZwerchhau : RDM.Zwerchhau;
                     }
 
-                    if (lastMove == RDM.Zwerchhau && level >= 50)
+                    if (lastMove == RDM.Zwerchhau && level >= RDM.LevelRedoublement)
                     {
-                        if (gauge.BlackGauge >= 25 && gauge.WhiteGauge >= 25)
-                            return RDM.ERedoublement;
-                        return RDM.Redoublement;
+                        return (gauge.BlackGauge >= 25 && gauge.WhiteGauge >= 25) ? RDM.ERedoublement : RDM.Redoublement;
                     }
 
-                    if (gauge.BlackGauge >= 30 && gauge.WhiteGauge >= 30)
-                        return RDM.ERiposte;
-                    return RDM.Riposte;
+                    return (gauge.BlackGauge >= 30 && gauge.WhiteGauge >= 30) ? RDM.ERiposte : RDM.Riposte;
                 }
 
             return iconHook.Original(self, actionID);
