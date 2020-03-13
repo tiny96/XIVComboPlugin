@@ -14,5 +14,16 @@
             Oka = 7485,
             Seigan = 7501,
             ThirdEye = 7498;
+        public static short
+            BuffMeikyoShisui = 1233,
+            BuffEyesOpen = 1252;
+        public static byte
+            LevelJinpu = 4,
+            LevelShifu = 18,
+            LevelGekko = 30,
+            LevelMangetsu = 35,
+            LevelKasha = 40,
+            LevelOka = 45,
+            LevelYukikaze = 50;
     }
 }

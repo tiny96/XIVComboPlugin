@@ -330,10 +330,10 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiYukikazeCombo))
                 if (actionID == SAM.Yukikaze)
                 {
-                    if (SearchBuffArray(1233))
+                    if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Yukikaze;
                     if (comboTime > 0)
-                        if (lastMove == SAM.Hakaze && level >= 50)
+                        if (lastMove == SAM.Hakaze && level >= SAM.LevelYukikaze)
                             return SAM.Yukikaze;
                     return SAM.Hakaze;
                 }
@@ -342,13 +342,13 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiGekkoCombo))
                 if (actionID == SAM.Gekko)
                 {
-                    if (SearchBuffArray(1233))
+                    if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Gekko;
                     if (comboTime > 0)
                     {
-                        if (lastMove == SAM.Hakaze && level >= 4)
+                        if (lastMove == SAM.Hakaze && level >= SAM.LevelJinpu)
                             return SAM.Jinpu;
-                        if (lastMove == SAM.Jinpu && level >= 30)
+                        if (lastMove == SAM.Jinpu && level >= SAM.LevelGekko)
                             return SAM.Gekko;
                     }
 
@@ -359,13 +359,13 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiKashaCombo))
                 if (actionID == SAM.Kasha)
                 {
-                    if (SearchBuffArray(1233))
+                    if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Kasha;
                     if (comboTime > 0)
                     {
-                        if (lastMove == SAM.Hakaze && level >= 18)
+                        if (lastMove == SAM.Hakaze && level >= SAM.LevelShifu)
                             return SAM.Shifu;
-                        if (lastMove == SAM.Shifu && level >= 40)
+                        if (lastMove == SAM.Shifu && level >= SAM.LevelKasha)
                             return SAM.Kasha;
                     }
 
@@ -376,10 +376,10 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiMangetsuCombo))
                 if (actionID == SAM.Mangetsu)
                 {
-                    if (SearchBuffArray(1233))
+                    if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Mangetsu;
                     if (comboTime > 0)
-                        if (lastMove == SAM.Fuga && level >= 35)
+                        if (lastMove == SAM.Fuga && level >= SAM.LevelMangetsu)
                             return SAM.Mangetsu;
                     return SAM.Fuga;
                 }
@@ -388,10 +388,10 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiOkaCombo))
                 if (actionID == SAM.Oka)
                 {
-                    if (SearchBuffArray(1233))
+                    if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Oka;
                     if (comboTime > 0)
-                        if (lastMove == SAM.Fuga && level >= 45)
+                        if (lastMove == SAM.Fuga && level >= SAM.LevelOka)
                             return SAM.Oka;
                     return SAM.Fuga;
                 }
@@ -399,7 +399,7 @@ namespace XIVComboPlugin
             // Turn Seigan into Third Eye when not procced
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiThirdEyeFeature))
                 if (actionID == SAM.Seigan) {
-                    if (SearchBuffArray(1252)) return SAM.Seigan;
+                    if (SearchBuffArray(SAM.BuffEyesOpen)) return SAM.Seigan;
                     return SAM.ThirdEye;
                 }
 
