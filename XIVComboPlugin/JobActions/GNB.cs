@@ -20,6 +20,8 @@
             BuffReadyToTear = 1843,
             BuffReadyToGouge = 1844;
         public static byte
+            LevelBrutalShell = 4,
+            LevelSolidBarrel = 26,
             LevelContinuation = 70;
     }
 }

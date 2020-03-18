@@ -456,14 +456,13 @@ namespace XIVComboPlugin
             // GUNBREAKER
 
             // Replace Solid Barrel with Solid Barrel combo
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerSolidBarrelCombo))
-                if (actionID == GNB.SolidBarrel)
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerSolidBarrelCombo) && actionID == GNB.SolidBarrel)
                 {
                     if (comboTime > 0)
                     {
-                        if (lastMove == GNB.KeenEdge && level >= 4)
+                        if (lastMove == GNB.KeenEdge && level >= GNB.LevelBrutalShell)
                             return GNB.BrutalShell;
-                        if (lastMove == GNB.BrutalShell && level >= 26)
+                        if (lastMove == GNB.BrutalShell && level >= GNB.LevelSolidBarrel)
                             return GNB.SolidBarrel;
                     }
 
@@ -471,42 +470,40 @@ namespace XIVComboPlugin
                 }
 
             // Replace Wicked Talon with Gnashing Fang combo
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCombo))
-                if (actionID == GNB.WickedTalon)
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCombo) && actionID == GNB.WickedTalon)
+            {
+                if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCont))
                 {
-                    if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCont))
+                    if (level >= GNB.LevelContinuation)
                     {
-                        if (level >= GNB.LevelContinuation)
-                        {
-                            if (SearchBuffArray(GNB.BuffReadyToRip))
-                                return GNB.JugularRip;
-                            if (SearchBuffArray(GNB.BuffReadyToTear))
-                                return GNB.AbdomenTear;
-                            if (SearchBuffArray(GNB.BuffReadyToGouge))
-                                return GNB.EyeGouge;
-                        }
-                    }
-                    var ammoComboState = clientState.JobGauges.Get<GNBGauge>().AmmoComboStepNumber;
-                    switch(ammoComboState)
-                    {
-                        case 1:
-                            return GNB.SavageClaw;
-                        case 2:
-                            return GNB.WickedTalon;
-                        default:
-                            return GNB.GnashingFang;
+                        if (SearchBuffArray(GNB.BuffReadyToRip))
+                            return GNB.JugularRip;
+                        if (SearchBuffArray(GNB.BuffReadyToTear))
+                            return GNB.AbdomenTear;
+                        if (SearchBuffArray(GNB.BuffReadyToGouge))
+                            return GNB.EyeGouge;
                     }
                 }
+                var ammoComboState = clientState.JobGauges.Get<GNBGauge>().AmmoComboStepNumber;
+                switch(ammoComboState)
+                {
+                    case 1:
+                        return GNB.SavageClaw;
+                    case 2:
+                        return GNB.WickedTalon;
+                    default:
+                        return GNB.GnashingFang;
+                }
+            }
 
             // Replace Demon Slaughter with Demon Slaughter combo
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerDemonSlaughterCombo))
-                if (actionID == GNB.DemonSlaughter)
-                {
-                    if (comboTime > 0)
-                        if (lastMove == GNB.DemonSlice && level >= 40)
-                            return GNB.DemonSlaughter;
-                    return GNB.DemonSlice;
-                }
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerDemonSlaughterCombo) && actionID == GNB.DemonSlaughter)
+            {
+                if (comboTime > 0)
+                    if (lastMove == GNB.DemonSlice && level >= 40)
+                        return GNB.DemonSlaughter;
+                return GNB.DemonSlice;
+            }
 
             // MACHINIST
 
