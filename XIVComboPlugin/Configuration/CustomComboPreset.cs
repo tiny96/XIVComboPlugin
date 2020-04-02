@@ -160,8 +160,11 @@ namespace XIVComboPlugin
         BardStraightShotUpgradeFeature = 1L << 42,
 
         // MONK
-        [CustomComboInfo("Monk AoE Combo", "Replaces Rockbreaker with Arm of the Destroyer > Twin Snakes / Four-point Fury > Rock Breaker", 20)]
+        [CustomComboInfo("Monk AE Combos", "Replaces Rockbreaker with Arm of the Destroyer > Twin Snakes / Four-point Fury > Rock Breaker", 20)]
         MonkAECombo = 1L << 43,
+
+        [CustomComboInfo("Monk ST Combos", "Switching between Dragon Kick / Bootshine, Twin Snakes / True Strike, Demolish / Snap Punch", 20)]
+        MonkSTCombo = 1L << 53,
 
         // RED MAGE
         [CustomComboInfo("Red Mage AoE Combo", "Replaces Veraero/thunder 2 with Impact when Dualcast or Swiftcast are active", 35)]

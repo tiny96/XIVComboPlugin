@@ -860,6 +860,40 @@ namespace XIVComboPlugin
                 }
             }
 
+            // Monk ST Combo
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.MonkSTCombo))
+            {
+                if (actionID == MNK.Demolish) {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    {
+                        return level >= MNK.Demolish ? MNK.Demolish : MNK.SnapPunch;
+                    }
+                    return level >= MNK.Demolish ? MNK.Demolish : MNK.SnapPunch;
+                }
+                if (actionID == MNK.DragonKick) {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    {
+                        return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+                    }
+                    if (level >= MNK.LevelDragonKick)
+                    {
+                        if (SearchBuffArray(MNK.BuffLeadenFist) && SearchBuffArray(MNK.BuffOpoOpoForm))
+                        {
+                            return MNK.Bootshine;
+                        }
+                    }
+                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+                }
+                if (actionID == MNK.TwinSnakes)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    {
+                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                    }
+                    return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                }
+            }
+
             // RED MAGE
            
             // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder / Jolt
@@ -957,8 +991,12 @@ namespace XIVComboPlugin
         private bool SearchBuffArray(short needle)
         {
             for (var i = 0; i < 60; i++)
+            {
                 if (Marshal.ReadInt16(activeBuffArray + 4 * i) == needle)
+                {
                     return true;
+                }
+            }
             return false;
         }
 
@@ -973,6 +1011,9 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            customIds.Add(MNK.DragonKick);
+            customIds.Add(MNK.TwinSnakes);
+            customIds.Add(MNK.Demolish);
             customIds.Add(MNK.Rockbreaker);
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);
