@@ -973,9 +973,9 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            customIds.Add(MNK.Rockbreaker);
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);
-            customIds.Add(MNK.Rockbreaker);
             customIds.Add(16477);
             customIds.Add(88);
             customIds.Add(84);
@@ -987,16 +987,16 @@ namespace XIVComboPlugin
             customIds.Add(42);
             customIds.Add(45);
             customIds.Add(16462);
-            customIds.Add(7480);
-            customIds.Add(7481);
-            customIds.Add(7482);
-            customIds.Add(7484);
-            customIds.Add(7485);
+            customIds.Add(SAM.Yukikaze);
+            customIds.Add(SAM.Gekko);
+            customIds.Add(SAM.Kasha);
+            customIds.Add(SAM.Mangetsu);
+            customIds.Add(SAM.Oka);
             customIds.Add(3563);
             customIds.Add(2255);
             customIds.Add(16488);
-            customIds.Add(16145);
-            customIds.Add(16150);
+            customIds.Add(GNB.SolidBarrel);
+            customIds.Add(GNB.WickedTalon);
             customIds.Add(16149);
             customIds.Add(7413);
             customIds.Add(2870);
@@ -1018,16 +1018,16 @@ namespace XIVComboPlugin
             customIds.Add(16534);
             customIds.Add(3559);
             customIds.Add(97);
-            customIds.Add(16525);
-            customIds.Add(16524);
-            customIds.Add(7516);
+            customIds.Add(RDM.Veraero2);
+            customIds.Add(RDM.Verthunder2);
+            customIds.Add(RDM.Redoublement);
             customIds.Add(3566);
             customIds.Add(92);
             customIds.Add(3553);
             customIds.Add(2873);
             customIds.Add(3579);
             customIds.Add(17209);
-            customIds.Add(7501);
+            customIds.Add(SAM.Seigan);
             customIds.Add(21);
             customIds.Add(DNC.Bloodshower);
             customIds.Add(DNC.RisingWindmill);
