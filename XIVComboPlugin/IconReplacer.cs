@@ -826,7 +826,42 @@ namespace XIVComboPlugin
                 }
 
             // MONK
-            // This space intentionally left blank.
+
+            // Replace Rockbreaker with Arm of the Destoyer > Twin Snakes / Four-point Fury > Rockbreaker
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.MonkAECombo))
+            {
+                if (actionID == MNK.Rockbreaker)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    {
+                        return MNK.Rockbreaker;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffCoeurlForm) && level >= MNK.LevelRockbreaker)
+                    {
+                        return MNK.Rockbreaker;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffRaptorForm))
+                    {
+                        if (SearchBuffArray(MNK.BuffTwinSnakes) && level >= MNK.FourPointFury)
+                        {
+                            return MNK.FourPointFury;
+                        }
+                        if (level >= MNK.LevelTwinSnakes)
+                        {
+                            return MNK.TwinSnakes;
+                        }
+                    }
+
+                    if (level >= MNK.LevelArmOfTheDestroyer)
+                    {
+                        return MNK.ArmOfTheDestroyer;
+                    }
+
+                    return MNK.Rockbreaker;
+                }
+            }
 
             // RED MAGE
            
@@ -901,6 +936,7 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            customIds.Add(MNK.Rockbreaker);
             customIds.Add(16477);
             customIds.Add(88);
             customIds.Add(84);
