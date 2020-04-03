@@ -844,7 +844,7 @@ namespace XIVComboPlugin
 
                     if (SearchBuffArray(MNK.BuffRaptorForm))
                     {
-                        if (SearchBuffArray(MNK.BuffTwinSnakes) && level >= MNK.FourPointFury)
+                        if (SearchBuffArray(MNK.BuffTwinSnakes) && level >= MNK.LevelFourPointFury)
                         {
                             return MNK.FourPointFury;
                         }
