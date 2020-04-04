@@ -163,6 +163,9 @@ namespace XIVComboPlugin
         [CustomComboInfo("Monk AoE Combo", "Replaces Rockbreaker with Arm of the Destroyer > Twin Snakes / Four-point Fury > Rock Breaker", 20)]
         MonkAECombo = 1L << 43,
 
+        [CustomComboInfo("Monk ST Combos", "Switching between Dragon Kick / Bootshine", 20)]
+        MonkSTCombo = 1L << 53,
+
         // RED MAGE
         [CustomComboInfo("Red Mage AoE Combo", "Replaces Veraero/thunder 2 with Impact when Dualcast or Swiftcast are active", 35)]
         RedMageAoECombo = 1L << 48,

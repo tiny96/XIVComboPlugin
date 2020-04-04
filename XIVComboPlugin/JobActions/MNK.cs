@@ -3,8 +3,13 @@
     public static class MNK
     {
         public static uint
-            ArmOfTheDestroyer = 62,
+            Bootshine = 53,
+            TrueStrike = 54,
+            SnapPunch = 56,
+            DragonKick = 74,
             TwinSnakes = 61,
+            Demolish = 2031,
+            ArmOfTheDestroyer = 62,
             FourPointFury = 16473,
             Rockbreaker = 70;
         public static short
@@ -15,10 +20,16 @@
             BuffPerfectBalance = 110,
             BuffGreasedLightning = 111,
             BuffGreasedLightning2 = 112,
-            BuffGreasedLightning3 = 113;
+            BuffGreasedLightning3 = 113,
+            BuffLeadenFist = 1861;
         public static byte
-            LevelArmOfTheDestroyer = 26,
+            LevelBootshine = 1,
+            LevelTrueStrike = 4,
+            LevelSnapPunch = 6,
+            LevelDragonKick = 50,
             LevelTwinSnakes = 18,
+            LevelDemolish = 30,
+            LevelArmOfTheDestroyer = 26,
             LevelFourPointFury = 45,
             LevelRockbreaker = 30;
     }

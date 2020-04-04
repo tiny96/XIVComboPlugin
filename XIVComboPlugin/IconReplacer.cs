@@ -844,6 +844,7 @@ namespace XIVComboPlugin
 
                     if (SearchBuffArray(MNK.BuffRaptorForm))
                     {
+                        // return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TwinSnakes;
                         if (SearchBuffArray(MNK.BuffTwinSnakes) && level >= MNK.LevelFourPointFury)
                         {
                             return MNK.FourPointFury;
@@ -863,8 +864,21 @@ namespace XIVComboPlugin
                 }
             }
 
+            // Monk ST Combo
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.MonkSTCombo))
+            {
+                if (actionID == MNK.DragonKick)
+                {
+                    if (SearchBuffArray(MNK.BuffLeadenFist))
+                    {
+                        return MNK.Bootshine;
+                    }
+                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+                }
+            }
+
             // RED MAGE
-           
+
             // Replace Veraero/thunder 2 with Impact when Dualcast is active
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageAoECombo))
             {
@@ -936,6 +950,7 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            customIds.Add(MNK.DragonKick);
             customIds.Add(MNK.Rockbreaker);
             customIds.Add(16477);
             customIds.Add(88);
