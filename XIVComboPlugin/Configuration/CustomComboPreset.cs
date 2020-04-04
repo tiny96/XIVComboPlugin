@@ -163,7 +163,7 @@ namespace XIVComboPlugin
         [CustomComboInfo("Monk AE Combos", "Replaces Rockbreaker with Arm of the Destroyer > Twin Snakes / Four-point Fury > Rock Breaker", 20)]
         MonkAECombo = 1L << 43,
 
-        [CustomComboInfo("Monk ST Combos", "Switching between Dragon Kick / Bootshine, Twin Snakes / True Strike, Demolish / Snap Punch", 20)]
+        [CustomComboInfo("Monk ST Combos", "Switching between Dragon Kick / Bootshine", 20)]
         MonkSTCombo = 1L << 53,
 
         // RED MAGE
