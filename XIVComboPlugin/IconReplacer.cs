@@ -834,28 +834,25 @@ namespace XIVComboPlugin
                         return MNK.Rockbreaker;
                     }
 
-                    if (SearchBuffArray(MNK.BuffCoeurlForm) && level >= MNK.LevelRockbreaker)
+                    if (SearchBuffArray(MNK.BuffCoeurlForm))
                     {
-                        return MNK.Rockbreaker;
+                        if (level >= MNK.LevelRockbreaker)
+                            return MNK.Rockbreaker;
+                        return level >= MNK.LevelDemolish ? MNK.Demolish : MNK.SnapPunch;
                     }
 
                     if (SearchBuffArray(MNK.BuffRaptorForm))
                     {
                         // return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TwinSnakes;
-                        if (SearchBuffArray(MNK.BuffTwinSnakes) && level >= MNK.LevelFourPointFury)
+                        if (SearchBuffArray(MNK.BuffTwinSnakes))
                         {
-                            return MNK.FourPointFury;
+                            return level >= MNK.FourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
                         }
-                        if (level >= MNK.LevelTwinSnakes)
-                        {
-                            return MNK.TwinSnakes;
-                        }
+                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
                     }
 
                     if (level >= MNK.LevelArmOfTheDestroyer)
-                    {
                         return MNK.ArmOfTheDestroyer;
-                    }
 
                     return MNK.Rockbreaker;
                 }
@@ -866,10 +863,8 @@ namespace XIVComboPlugin
             {
                 if (actionID == MNK.DragonKick)
                 {
-                    if (SearchBuffArray(MNK.BuffLeadenFist))
-                    {
+                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
                         return MNK.Bootshine;
-                    }
                     return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
                 }
             }
