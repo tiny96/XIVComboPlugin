@@ -846,7 +846,7 @@ namespace XIVComboPlugin
                         // return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TwinSnakes;
                         if (SearchBuffArray(MNK.BuffTwinSnakes))
                         {
-                            return level >= MNK.FourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
+                            return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
                         }
                         return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
                     }
