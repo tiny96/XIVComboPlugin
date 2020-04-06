@@ -8,7 +8,7 @@
             SnapPunch = 56,
             DragonKick = 74,
             TwinSnakes = 61,
-            Demolish = 2031,
+            Demolish = 66,
             ArmOfTheDestroyer = 62,
             FourPointFury = 16473,
             Rockbreaker = 70;

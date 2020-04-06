@@ -145,6 +145,10 @@ namespace XIVComboPlugin
         [CustomComboInfo("Fan Dance Combos", "Change Fan Dance and Fan Dance 2 into Fan Dance 3 while flourishing", 38)]
         DancerFanDanceCombo = 1L << 33,
 
+        [CustomComboInfo("Smart Dancing", "Bladeshower > AE Combo / Fountain > ST Combo / Standard & Technical Step dancing", 38)]
+        DancerDanceCombo = 1L << 54,
+
+
         // WHITE MAGE
         [CustomComboInfo("Solace into Misery", "Replaces Afflatus Solace with Afflatus Misery when Misery is ready to be used", 24)]
         WhiteMageSolaceMiseryFeature = 1L << 35,

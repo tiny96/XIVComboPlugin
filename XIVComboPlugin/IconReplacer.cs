@@ -16,6 +16,8 @@ namespace XIVComboPlugin
 
         public delegate ulong OnGetIconDelegate(byte param1, uint param2);
 
+        public delegate ulong OnRequestActionDetour(long param_1, uint param_2, ulong param_3, long param_4, uint param_5, uint param_6, int param_7);
+
         private IntPtr activeBuffArray = IntPtr.Zero;
 
         private readonly IconReplacerAddressResolver Address;
@@ -36,6 +38,8 @@ namespace XIVComboPlugin
         private readonly IntPtr BuffVTableAddr;
 
         private unsafe delegate int* getArray(long* address);
+
+        private Hook<OnRequestActionDetour> requestActionHook;
 
         public IconReplacer(SigScanner scanner, ClientState clientState, XIVComboConfiguration configuration)
         {
@@ -67,18 +71,27 @@ namespace XIVComboPlugin
             iconHook = new Hook<OnGetIconDelegate>(Address.GetIcon, new OnGetIconDelegate(GetIconDetour), this);
             checkerHook = new Hook<OnCheckIsIconReplaceableDelegate>(Address.IsIconReplaceable,
                 new OnCheckIsIconReplaceableDelegate(CheckIsIconReplaceableDetour), this);
+            requestActionHook = new Hook<OnRequestActionDetour>(Address.RequestAction, new OnRequestActionDetour(HandleRequestAction), this);
+        }
+
+        private unsafe ulong HandleRequestAction(long param_1, uint param_2, ulong param_3, long param_4, uint param_5, uint param_6, int param_7)
+        {
+            Log.Information($"Requested Action : {param_3} {param_4}");
+            return this.requestActionHook.Original(param_1, param_2, param_3, param_4, param_5, param_6, param_7);
         }
 
         public void Enable()
         {
             iconHook.Enable();
             checkerHook.Enable();
+            // requestActionHook.Enable();
         }
 
         public void Dispose()
         {
             iconHook.Dispose();
             checkerHook.Dispose();
+            // requestActionHook.Dispose();
         }
 
         // I hate this function. This is the dumbest function to exist in the game. Just return 1.
@@ -100,7 +113,6 @@ namespace XIVComboPlugin
         private ulong GetIconDetour(byte self, uint actionID)
         {
             // TODO: More jobs, level checking for everything.
-
             if (vanillaIds.Contains(actionID)) return iconHook.Original(self, actionID);
             if (!customIds.Contains(actionID)) return actionID;
             if (activeBuffArray == IntPtr.Zero)
@@ -472,18 +484,6 @@ namespace XIVComboPlugin
             // Replace Wicked Talon with Gnashing Fang combo
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCombo) && actionID == GNB.WickedTalon)
             {
-                if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCont))
-                {
-                    if (level >= GNB.LevelContinuation)
-                    {
-                        if (SearchBuffArray(GNB.BuffReadyToRip))
-                            return GNB.JugularRip;
-                        if (SearchBuffArray(GNB.BuffReadyToTear))
-                            return GNB.AbdomenTear;
-                        if (SearchBuffArray(GNB.BuffReadyToGouge))
-                            return GNB.EyeGouge;
-                    }
-                }
                 var ammoComboState = clientState.JobGauges.Get<GNBGauge>().AmmoComboStepNumber;
                 switch(ammoComboState)
                 {
@@ -495,6 +495,31 @@ namespace XIVComboPlugin
                         return GNB.GnashingFang;
                 }
             }
+
+            // Replace Continuation with Gnashing Fang combo
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerGnashingFangCont) && actionID == GNB.Continuation)
+            {
+                if (level >= GNB.LevelContinuation)
+                {
+                    if (SearchBuffArray(GNB.BuffReadyToRip))
+                        return GNB.JugularRip;
+                    if (SearchBuffArray(GNB.BuffReadyToTear))
+                        return GNB.AbdomenTear;
+                    if (SearchBuffArray(GNB.BuffReadyToGouge))
+                        return GNB.EyeGouge;
+                }
+                var ammoComboState = clientState.JobGauges.Get<GNBGauge>().AmmoComboStepNumber;
+                switch (ammoComboState)
+                {
+                    case 1:
+                        return GNB.SavageClaw;
+                    case 2:
+                        return GNB.WickedTalon;
+                    default:
+                        return GNB.GnashingFang;
+                }
+            }
+
 
             // Replace Demon Slaughter with Demon Slaughter combo
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerDemonSlaughterCombo) && actionID == GNB.DemonSlaughter)
@@ -738,6 +763,57 @@ namespace XIVComboPlugin
 
             // DANCER
 
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DancerDanceCombo))
+            {
+                var gauge = clientState.JobGauges.Get<DNCGauge>();
+
+                if (actionID == DNC.Bloodshower)
+                {
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bloodshower;
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
+                    if (comboTime > 0 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+                    return DNC.Windmill;
+                }
+
+                if (actionID == DNC.FountainFall)
+                {
+                    if (level >= DNC.LevelFountainFall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.FountainFall;
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+                    if (comboTime > 0 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+                    return DNC.Cascade;
+                }
+
+                if (actionID == DNC.StandardStep)
+                {
+                    if (gauge.IsDancing())
+                    {
+                        if (gauge.NumCompleteSteps >= 2)
+                            return DNC.StandardFinish;
+                        return gauge.NextStep();
+                    }
+
+                    return DNC.StandardStep;
+                }
+
+                if (actionID == DNC.TechnicalStep)
+                {
+                    if (gauge.IsDancing())
+                    {
+                        if (gauge.NumCompleteSteps >= 4)
+                            return DNC.TechnicalFinish;
+                        return gauge.NextStep();
+                    }
+
+                    return DNC.TechnicalStep;
+                }
+            }
+
             // AoE GCDs are split into two buttons, because priority matters
             // differently in different single-target moments. Thanks yoship.
             // Replaces each GCD with its procced version.
@@ -745,14 +821,14 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.Bloodshower)
                 {
-                    if (SearchBuffArray(1817))
+                    if (SearchBuffArray(DNC.BuffFlourishingShower))
                         return DNC.Bloodshower;
                     return DNC.Bladeshower;
                 }
 
                 if (actionID == DNC.RisingWindmill)
                 {
-                    if (SearchBuffArray(1816))
+                    if (SearchBuffArray(DNC.BuffFlourishingWindmill))
                         return DNC.RisingWindmill;
                     return DNC.Windmill;
                 }
@@ -904,7 +980,7 @@ namespace XIVComboPlugin
                 // Snap Punch to Dragon Kick / Bootshine > Twin Snakes / True Strike > Snap Punch
                 if (actionID == MNK.SnapPunch)
                 {
-                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    if (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffCoeurlForm))
                     {
                         return MNK.SnapPunch;
                     }
@@ -1082,11 +1158,20 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            // Dancer
+            customIds.Add(DNC.TechnicalStep);
+            customIds.Add(DNC.StandardStep);
+            customIds.Add(DNC.FountainFall);
+            customIds.Add(DNC.Bloodshower);
+            customIds.Add(DNC.FanDance1);
+            customIds.Add(DNC.FanDance2);
+            // Monk
             customIds.Add(MNK.SnapPunch);
             customIds.Add(MNK.Demolish);
             customIds.Add(MNK.TwinSnakes);
             customIds.Add(MNK.DragonKick);
             customIds.Add(MNK.Rockbreaker);
+            // Red Mage
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);
             customIds.Add(16477);
@@ -1110,6 +1195,7 @@ namespace XIVComboPlugin
             customIds.Add(16488);
             customIds.Add(GNB.SolidBarrel);
             customIds.Add(GNB.WickedTalon);
+            customIds.Add(GNB.Continuation);
             customIds.Add(16149);
             customIds.Add(7413);
             customIds.Add(2870);
@@ -1123,10 +1209,6 @@ namespace XIVComboPlugin
             customIds.Add(3578);
             customIds.Add(16543);
             customIds.Add(167);
-            customIds.Add(15994);
-            customIds.Add(15993);
-            customIds.Add(16007);
-            customIds.Add(16008);
             customIds.Add(16531);
             customIds.Add(16534);
             customIds.Add(3559);
@@ -1147,13 +1229,13 @@ namespace XIVComboPlugin
             vanillaIds.Add(0x3e75);
             vanillaIds.Add(0x3e76);
             vanillaIds.Add(0x3e77);
-            vanillaIds.Add(0x3e78);
-            vanillaIds.Add(0x3e7d);
-            vanillaIds.Add(0x3e7e);
+            // vanillaIds.Add(0x3e78);
+            // vanillaIds.Add(0x3e7d);
+            // vanillaIds.Add(0x3e7e);
             vanillaIds.Add(0x3e86);
             vanillaIds.Add(0x3f10);
             vanillaIds.Add(0x3f25);
-            vanillaIds.Add(0x3f1b);
+            // vanillaIds.Add(0x3f1b);
             vanillaIds.Add(0x3f1c);
             vanillaIds.Add(0x3f1d);
             vanillaIds.Add(0x3f1e);
