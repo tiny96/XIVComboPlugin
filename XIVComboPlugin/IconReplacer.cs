@@ -830,9 +830,7 @@ namespace XIVComboPlugin
                 if (actionID == MNK.Rockbreaker)
                 {
                     if (SearchBuffArray(MNK.BuffPerfectBalance))
-                    {
                         return MNK.Rockbreaker;
-                    }
 
                     if (SearchBuffArray(MNK.BuffCoeurlForm))
                     {
@@ -845,9 +843,8 @@ namespace XIVComboPlugin
                     {
                         // return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TwinSnakes;
                         if (SearchBuffArray(MNK.BuffTwinSnakes))
-                        {
                             return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
-                        }
+
                         return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
                     }
 
@@ -867,18 +864,80 @@ namespace XIVComboPlugin
                         return MNK.Bootshine;
                     return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
                 }
+
+                if (actionID == MNK.TwinSnakes)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    {
+                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                    }
+                    if (SearchBuffArray(MNK.BuffTwinSnakes, 5))
+                    {
+                        return MNK.TrueStrike;
+                    }
+                    return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                }
+
+                // Demolish to Dragon Kick / Bootshine > Twin Snakes / True Strike > Demolish
+                if (actionID == MNK.Demolish)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffCoeurlForm))
+                    {
+                        return level >= MNK.LevelDemolish ? MNK.Demolish : MNK.SnapPunch;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffRaptorForm))
+                    {
+                        if (SearchBuffArray(MNK.BuffTwinSnakes,5))
+                        {
+                            return MNK.TrueStrike;
+                        }
+                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
+                        return MNK.Bootshine;
+                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+
+                }
+
+                // Snap Punch to Dragon Kick / Bootshine > Twin Snakes / True Strike > Snap Punch
+                if (actionID == MNK.SnapPunch)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                    {
+                        return MNK.SnapPunch;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffRaptorForm))
+                    {
+                        if (SearchBuffArray(MNK.BuffTwinSnakes, 5))
+                        {
+                            return MNK.TrueStrike;
+                        }
+                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
+                        return MNK.Bootshine;
+                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+                }
+
             }
 
             // RED MAGE
-           
+
             // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder / Jolt
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageSTCombo)) {
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageSTCombo))
+            {
                 var gauge = clientState.JobGauges.Get<RDMGauge>();
-                if (actionID == RDM.Verstone) {
-                    if (comboTime > 0) {
+                if (actionID == RDM.Verstone)
+                {
+                    if (comboTime > 0)
+                    {
                         if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
                             return RDM.Scorch;
-                        if (level >= RDM.LevelVerholy && lastMove == RDM.ERedoublement) 
+                        if (level >= RDM.LevelVerholy && lastMove == RDM.ERedoublement)
                             return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verholy : RDM.Verflare;
                     }
                     // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
@@ -897,11 +956,13 @@ namespace XIVComboPlugin
 
                     return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
                 }
-                if (actionID == RDM.Verfire) {
-                    if (comboTime > 0) {
+                if (actionID == RDM.Verfire)
+                {
+                    if (comboTime > 0)
+                    {
                         if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
                             return RDM.Scorch;
-                        if (level >= RDM.LevelVerflare && lastMove == RDM.ERedoublement) 
+                        if (level >= RDM.LevelVerflare && lastMove == RDM.ERedoublement)
                             return (gauge.BlackGauge > gauge.WhiteGauge && level >= RDM.LevelVerholy) ? RDM.Verholy : RDM.Verflare;
                     }
                     // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
@@ -963,14 +1024,49 @@ namespace XIVComboPlugin
             return iconHook.Original(self, actionID);
         }
 
-        private bool SearchBuffArray(short needle)
+        private struct BuffInfo
         {
-            for (var i = 0; i < 60; i++)
+            public short buff;
+            public short filler;
+            public float duration;
+            public int provider;
+        }
+        private int buffOffset = 8;
+        private int BuffInfoSize = sizeof(short) + sizeof(short) + sizeof(float) + sizeof(int);
+
+        private short lastDump = -1;
+
+        private void DumpBuffArray(short foundBuff)
+        {
+            if (lastDump != foundBuff)
             {
-                if (Marshal.ReadInt16(activeBuffArray + 4 * i) == needle)
+                Log.Information($"Dumping >> {foundBuff}");
+                var buffPtr = activeBuffArray + buffOffset;
+                for (var i = 0; i < 30; i++)
                 {
-                    return true;
+                    var info = Marshal.PtrToStructure<BuffInfo>(buffPtr);
+                    Log.Information($"Buff #{i,2} {info.buff} {info.duration:f}");
+                    buffPtr += (sizeof(short) + sizeof(short) + sizeof(float) + sizeof(int));
                 }
+
+
+                lastDump = foundBuff;
+            }
+        }
+
+        private bool SearchBuffArray(short needle, float min = -1)
+        {
+
+            var ptr = activeBuffArray + buffOffset;
+
+            for (var i = 0; i < 30; i++)
+            {
+                var info = Marshal.PtrToStructure<BuffInfo>(ptr);
+                if (info.buff == needle)
+                {
+                    return min == -1 || Math.Abs(info.duration) >= min;
+                }
+                ptr += BuffInfoSize;
             }
             return false;
         }
@@ -986,6 +1082,9 @@ namespace XIVComboPlugin
 
         private void PopulateDict()
         {
+            customIds.Add(MNK.SnapPunch);
+            customIds.Add(MNK.Demolish);
+            customIds.Add(MNK.TwinSnakes);
             customIds.Add(MNK.DragonKick);
             customIds.Add(MNK.Rockbreaker);
             customIds.Add(RDM.Verstone);
