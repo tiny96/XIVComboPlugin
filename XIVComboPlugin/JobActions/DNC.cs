@@ -12,8 +12,14 @@
             FanDance2 = 16008,
             StandardStep = 15997,
             StandardFinish = 16003,
+            StandardFinish1 = 16191,
+            StandardFinish2 = 16192,
             TechnicalStep = 15998,
             TechnicalFinish = 16004,
+            TechnicalFinish1 = 16193,
+            TechnicalFinish2 = 16194,
+            TechnicalFinish3 = 16195,
+            TechnicalFinish4 = 16196,
             Emboite = 15999,
             Entrechat = 16000,
             Jete = 16001,
@@ -23,6 +29,8 @@
             ReverseCascade = 15991,
             FountainFall = 15992;
         public static short
+            BuffStandardStep = 1818,
+            BuffTechnicalStep = 1819,
             BuffFlourishingCascade = 1814,
             BuffFlourishingFountain = 1815,
             BuffFlourishingWindmill = 1816,

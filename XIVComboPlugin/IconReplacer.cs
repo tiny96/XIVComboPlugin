@@ -769,49 +769,66 @@ namespace XIVComboPlugin
 
                 if (actionID == DNC.Bloodshower)
                 {
+                    if (gauge.IsDancing())
+                        return DNC.Jete;
                     if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
                         return DNC.Bloodshower;
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+                    return DNC.Windmill;
+                }
+
+                if (actionID == DNC.RisingWindmill)
+                {
+                    if (gauge.IsDancing())
+                        return DNC.Pirouette;
                     if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
                         return DNC.RisingWindmill;
-                    if (comboTime > 0 && lastMove == DNC.Windmill)
-                        return DNC.Bladeshower;
                     return DNC.Windmill;
                 }
 
                 if (actionID == DNC.FountainFall)
                 {
+                    if (gauge.IsDancing())
+                        return DNC.Entrechat;
                     if (level >= DNC.LevelFountainFall && SearchBuffArray(DNC.BuffFlourishingFountain))
                         return DNC.FountainFall;
-                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
-                        return DNC.ReverseCascade;
-                    if (comboTime > 0 && lastMove == DNC.Cascade)
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
                         return DNC.Fountain;
                     return DNC.Cascade;
                 }
 
-                if (actionID == DNC.StandardStep)
+                if (actionID == DNC.ReverseCascade)
                 {
                     if (gauge.IsDancing())
-                    {
-                        if (gauge.NumCompleteSteps >= 2)
-                            return DNC.StandardFinish;
-                        return gauge.NextStep();
-                    }
-
-                    return DNC.StandardStep;
+                        return DNC.Emboite;
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+                    return DNC.Cascade;
                 }
 
                 if (actionID == DNC.TechnicalStep)
                 {
-                    if (gauge.IsDancing())
+                    if (gauge.IsDancing() && SearchBuffArray(DNC.BuffTechnicalStep))
                     {
                         if (gauge.NumCompleteSteps >= 4)
-                            return DNC.TechnicalFinish;
+                            return DNC.TechnicalFinish4;
                         return gauge.NextStep();
                     }
-
                     return DNC.TechnicalStep;
                 }
+
+                if (actionID == DNC.StandardStep)
+                {
+                    if (gauge.IsDancing() && SearchBuffArray(DNC.BuffStandardStep))
+                    {
+                        if (gauge.NumCompleteSteps >= 2)
+                            return DNC.StandardFinish2;
+                        return gauge.NextStep();
+                    }
+                    return DNC.StandardStep;
+                }
+
             }
 
             // AoE GCDs are split into two buttons, because priority matters
@@ -917,11 +934,7 @@ namespace XIVComboPlugin
 
                     if (SearchBuffArray(MNK.BuffRaptorForm))
                     {
-                        // return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TwinSnakes;
-                        if (SearchBuffArray(MNK.BuffTwinSnakes))
-                            return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
-
-                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                        return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
                     }
 
                     if (level >= MNK.LevelArmOfTheDestroyer)
@@ -939,42 +952,6 @@ namespace XIVComboPlugin
                     if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
                         return MNK.Bootshine;
                     return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
-                }
-
-                if (actionID == MNK.TwinSnakes)
-                {
-                    if (SearchBuffArray(MNK.BuffPerfectBalance))
-                    {
-                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
-                    }
-                    if (SearchBuffArray(MNK.BuffTwinSnakes, 5))
-                    {
-                        return MNK.TrueStrike;
-                    }
-                    return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
-                }
-
-                // Demolish to Dragon Kick / Bootshine > Twin Snakes / True Strike > Demolish
-                if (actionID == MNK.Demolish)
-                {
-                    if (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffCoeurlForm))
-                    {
-                        return level >= MNK.LevelDemolish ? MNK.Demolish : MNK.SnapPunch;
-                    }
-
-                    if (SearchBuffArray(MNK.BuffRaptorForm))
-                    {
-                        if (SearchBuffArray(MNK.BuffTwinSnakes,5))
-                        {
-                            return MNK.TrueStrike;
-                        }
-                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
-                    }
-
-                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
-                        return MNK.Bootshine;
-                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
-
                 }
 
                 // Snap Punch to Dragon Kick / Bootshine > Twin Snakes / True Strike > Snap Punch
@@ -1159,16 +1136,16 @@ namespace XIVComboPlugin
         private void PopulateDict()
         {
             // Dancer
-            customIds.Add(DNC.TechnicalStep);
             customIds.Add(DNC.StandardStep);
+            customIds.Add(DNC.TechnicalStep);
+            customIds.Add(DNC.ReverseCascade);
             customIds.Add(DNC.FountainFall);
+            customIds.Add(DNC.RisingWindmill);
             customIds.Add(DNC.Bloodshower);
             customIds.Add(DNC.FanDance1);
             customIds.Add(DNC.FanDance2);
             // Monk
             customIds.Add(MNK.SnapPunch);
-            customIds.Add(MNK.Demolish);
-            customIds.Add(MNK.TwinSnakes);
             customIds.Add(MNK.DragonKick);
             customIds.Add(MNK.Rockbreaker);
             // Red Mage
@@ -1226,9 +1203,10 @@ namespace XIVComboPlugin
             customIds.Add(21);
             customIds.Add(DNC.Bloodshower);
             customIds.Add(DNC.RisingWindmill);
+
             vanillaIds.Add(0x3e75);
             vanillaIds.Add(0x3e76);
-            vanillaIds.Add(0x3e77);
+            // vanillaIds.Add(0x3e77);
             // vanillaIds.Add(0x3e78);
             // vanillaIds.Add(0x3e7d);
             // vanillaIds.Add(0x3e7e);
