@@ -44,6 +44,17 @@ namespace XIVComboPlugin
         private bool shutdown;
 
         private Hook<OnRequestActionDetour> requestActionHook;
+        private struct BuffInfo
+        {
+            public short buff;
+            public short filler;
+            public float duration;
+            public int provider;
+        }
+        private int buffOffset = 8;
+        private int BuffInfoSize = sizeof(short) + sizeof(short) + sizeof(float) + sizeof(int);
+
+        private short lastDump = -1;
 
         public IconReplacer(SigScanner scanner, ClientState clientState, XIVComboConfiguration configuration)
         {
@@ -1095,18 +1106,6 @@ namespace XIVComboPlugin
 
             return iconHook.Original(self, actionID);
         }
-
-        private struct BuffInfo
-        {
-            public short buff;
-            public short filler;
-            public float duration;
-            public int provider;
-        }
-        private int buffOffset = 8;
-        private int BuffInfoSize = sizeof(short) + sizeof(short) + sizeof(float) + sizeof(int);
-
-        private short lastDump = -1;
 
         private void DumpBuffArray(short foundBuff)
         {
