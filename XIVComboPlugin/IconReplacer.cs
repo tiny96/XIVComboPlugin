@@ -9,12 +9,13 @@ using XIVComboPlugin.JobActions;
 using Serilog;
 using System.Threading.Tasks;
 using System.Threading;
+using Dalamud.Plugin;
 
 namespace XIVComboPlugin
 {
     public class IconReplacer
     {
-        public delegate ulong OnCheckIsIconReplaceableDelegate(int actionID);
+        public delegate ulong OnCheckIsIconReplaceableDelegate(uint actionID);
 
         public delegate ulong OnGetIconDelegate(byte param1, uint param2);
 
@@ -32,6 +33,8 @@ namespace XIVComboPlugin
 
         private readonly HashSet<uint> customIds;
         private readonly HashSet<uint> vanillaIds;
+        private HashSet<uint> noUpdateIcons;
+        private HashSet<uint> seenNoUpdate;
 
         private readonly Hook<OnGetIconDelegate> iconHook;
         private readonly IntPtr lastComboMove;
@@ -74,6 +77,8 @@ namespace XIVComboPlugin
 
             customIds = new HashSet<uint>();
             vanillaIds = new HashSet<uint>();
+            noUpdateIcons = new HashSet<uint>();
+            seenNoUpdate = new HashSet<uint>();
 
             PopulateDict();
 
@@ -116,29 +121,48 @@ namespace XIVComboPlugin
             // requestActionHook.Dispose();
         }
 
+        public void AddNoUpdate(uint [] ids)
+        {
+            foreach (uint id in ids)
+            {
+                if (!noUpdateIcons.Contains(id))
+                    noUpdateIcons.Add(id);
+            }
+        }
+
+        public void RemoveNoUpdate(uint [] ids)
+        {
+            foreach (uint id in ids)
+            {
+                if (noUpdateIcons.Contains(id))
+                    noUpdateIcons.Remove(id);
+                if (seenNoUpdate.Contains(id))
+                    seenNoUpdate.Remove(id);
+            }
+        }
+
+
         public void BuffTask()
         {
             while (!shutdown)
             {
-                try
-                {
-                    activeBuffArray = FindBuffAddress();
-                }
-                catch (Exception)
-                {
-                    //Before you're loaded in
-                    activeBuffArray = IntPtr.Zero;
-                }
-
+                UpdateBuffAddress();
                 Thread.Sleep(1000);
             }
         }
 
         // I hate this function. This is the dumbest function to exist in the game. Just return 1.
         // Determines which abilities are allowed to have their icons updated.
-        private ulong CheckIsIconReplaceableDetour(int actionID)
+        private ulong CheckIsIconReplaceableDetour(uint actionID)
         {
-            return 1;
+            if (!noUpdateIcons.Contains(actionID))
+            {
+                return 1;
+            }
+            if (!seenNoUpdate.Contains(actionID)) { 
+                return 1;
+            }
+            return 0;
         }
 
         /// <summary>
@@ -153,6 +177,11 @@ namespace XIVComboPlugin
         private ulong GetIconDetour(byte self, uint actionID)
         {
             // TODO: More jobs, level checking for everything.
+            if (noUpdateIcons.Contains(actionID) && !seenNoUpdate.Contains(actionID))
+            {
+                seenNoUpdate.Add(actionID);
+                return actionID;
+            }
             if (vanillaIds.Contains(actionID)) return iconHook.Original(self, actionID);
             if (!customIds.Contains(actionID)) return actionID;
             if (activeBuffArray == IntPtr.Zero) return iconHook.Original(self, actionID);
@@ -161,13 +190,13 @@ namespace XIVComboPlugin
             var lastMove = Marshal.ReadInt32(lastComboMove);
             var comboTime = Marshal.ReadInt32(comboTimer);
             var level = Marshal.ReadByte(playerLevel);
-
             // DRAGOON
 
             // Change Jump/High Jump into Mirage Dive when Dive Ready
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DragoonJumpFeature))
                 if (actionID == DRG.Jump)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(1243))
                         return DRG.MirageDive;
                     if (level >= 74)
@@ -213,7 +242,7 @@ namespace XIVComboPlugin
                         if (lastMove == DRG.Disembowel && level >= 50) 
                             return DRG.ChaosThrust;
                     }
-
+                    UpdateBuffAddress();
                     if (SearchBuffArray(802) && level >= 56)
                         return DRG.FangAndClaw;
                     if (SearchBuffArray(803) && level >= 58)
@@ -237,7 +266,7 @@ namespace XIVComboPlugin
                         if (lastMove == DRG.VorpalThrust && level >= 26)
                             return DRG.FullThrust;
                     }
-
+                    UpdateBuffAddress();
                     if (SearchBuffArray(802) && level >= 56)
                         return DRG.FangAndClaw;
                     if (SearchBuffArray(803) && level >= 58)
@@ -372,6 +401,7 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiYukikazeCombo))
                 if (actionID == SAM.Yukikaze)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Yukikaze;
                     if (comboTime > 0)
@@ -384,6 +414,7 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiGekkoCombo))
                 if (actionID == SAM.Gekko)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Gekko;
                     if (comboTime > 0)
@@ -401,6 +432,7 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiKashaCombo))
                 if (actionID == SAM.Kasha)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Kasha;
                     if (comboTime > 0)
@@ -418,6 +450,7 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiMangetsuCombo))
                 if (actionID == SAM.Mangetsu)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Mangetsu;
                     if (comboTime > 0)
@@ -430,6 +463,7 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiOkaCombo))
                 if (actionID == SAM.Oka)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Oka;
                     if (comboTime > 0)
@@ -441,6 +475,7 @@ namespace XIVComboPlugin
             // Turn Seigan into Third Eye when not procced
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiThirdEyeFeature))
                 if (actionID == SAM.Seigan) {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffEyesOpen)) return SAM.Seigan;
                     return SAM.ThirdEye;
                 }
@@ -491,6 +526,7 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.NinjaAssassinateFeature))
                 if (actionID == NIN.DWAD)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(1955)) return NIN.Assassinate;
                     return NIN.DWAD;
                 }
@@ -743,6 +779,7 @@ namespace XIVComboPlugin
                     if (gauge.TimerRemaining > 0)
                         if (gauge.IsPhoenixReady())
                         {
+                            UpdateBuffAddress();
                             if (SearchBuffArray(1867))
                                 return SMN.BrandOfPurgatory;
                             return SMN.FountainOfFire;
@@ -886,6 +923,7 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.FanDance1)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(1820))
                         return DNC.FanDance3;
                     return DNC.FanDance1;
@@ -894,6 +932,7 @@ namespace XIVComboPlugin
                 // Fan Dance 2 changes into Fan Dance 3 while flourishing.
                 if (actionID == DNC.FanDance2)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(1820))
                         return DNC.FanDance3;
                     return DNC.FanDance2;
@@ -933,8 +972,9 @@ namespace XIVComboPlugin
 
             // Replace HS/BS with SS/RA when procced.
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.BardStraightShotUpgradeFeature))
-                if (actionID == BRD.HeavyShot)
+                if (actionID == BRD.HeavyShot || actionID == BRD.BurstShot)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(122))
                     {
                         if (level >= 70) return BRD.RefulgentArrow;
@@ -1140,6 +1180,19 @@ namespace XIVComboPlugin
                 ptr += BuffInfoSize;
             }
             return false;
+        }
+
+        private void UpdateBuffAddress()
+        {
+            try
+            {
+                activeBuffArray = FindBuffAddress();
+            }
+            catch (Exception)
+            {
+                //Before you're loaded in
+                activeBuffArray = IntPtr.Zero;
+            }
         }
 
         private unsafe IntPtr FindBuffAddress()
