@@ -1253,6 +1253,7 @@ namespace XIVComboPlugin
             // Red Mage
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);
+
             customIds.Add(16477);
             customIds.Add(88);
             customIds.Add(84);
@@ -1308,14 +1309,9 @@ namespace XIVComboPlugin
 
             vanillaIds.Add(0x3e75);
             vanillaIds.Add(0x3e76);
-            // vanillaIds.Add(0x3e77);
-            // vanillaIds.Add(0x3e78);
-            // vanillaIds.Add(0x3e7d);
-            // vanillaIds.Add(0x3e7e);
             vanillaIds.Add(0x3e86);
             vanillaIds.Add(0x3f10);
             vanillaIds.Add(0x3f25);
-            // vanillaIds.Add(0x3f1b);
             vanillaIds.Add(0x3f1c);
             vanillaIds.Add(0x3f1d);
             vanillaIds.Add(0x3f1e);
@@ -1491,6 +1487,9 @@ namespace XIVComboPlugin
             vanillaIds.Add(0x10e);
             vanillaIds.Add(0x110);
             vanillaIds.Add(0x111);
+
+            // If an id exists as a custom id, it should not be in vanilla id
+            vanillaIds.RemoveWhere(id => customIds.Contains(id));
         }
     }
 }
