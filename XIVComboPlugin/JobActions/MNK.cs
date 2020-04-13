@@ -2,7 +2,8 @@
 {
     public static class MNK
     {
-        public static uint
+        public const int Job = 20;
+        public const uint
             Bootshine = 53,
             TrueStrike = 54,
             SnapPunch = 56,
@@ -12,7 +13,7 @@
             ArmOfTheDestroyer = 62,
             FourPointFury = 16473,
             Rockbreaker = 70;
-        public static short
+        public const short
             BuffOpoOpoForm = 107,
             BuffRaptorForm = 108,
             BuffCoeurlForm = 109,
@@ -22,7 +23,7 @@
             BuffGreasedLightning2 = 112,
             BuffGreasedLightning3 = 113,
             BuffLeadenFist = 1861;
-        public static byte
+        public const byte
             LevelBootshine = 1,
             LevelTrueStrike = 4,
             LevelSnapPunch = 6,

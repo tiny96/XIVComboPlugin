@@ -2,6 +2,7 @@
 {
     public static class RDM
     {
+        public const int Job = 35;
         public const uint
             Veraero2 = 16525,
             Verthunder2 = 16524,
@@ -22,12 +23,12 @@
             Verholy = 7526,
             Verflare = 7525,
             Scorch = 16530;
-        public static short 
+        public const short 
             BuffSwiftCast = 167,
             BuffDualCast = 1249,
             BuffVerfireReady = 1234,
             BuffVerstoneReady = 1235;
-        public static byte
+        public const byte
             LevelScorch = 80,
             LevelVerholy = 70,
             LevelVerflare = 68,

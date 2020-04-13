@@ -2,6 +2,7 @@
 {
     public static class DNC
     {
+        public const int Job = 38;
         public const uint
             Bladeshower = 15994,
             Bloodshower = 15996,
@@ -28,14 +29,14 @@
             Fountain = 15990,
             ReverseCascade = 15991,
             FountainFall = 15992;
-        public static short
+        public const short
             BuffStandardStep = 1818,
             BuffTechnicalStep = 1819,
             BuffFlourishingCascade = 1814,
             BuffFlourishingFountain = 1815,
             BuffFlourishingWindmill = 1816,
             BuffFlourishingShower = 1817;
-        public static byte
+        public const byte
             LevelCascade = 1,
             LevelReverseCascade = 20,
             LevelFountain = 2,

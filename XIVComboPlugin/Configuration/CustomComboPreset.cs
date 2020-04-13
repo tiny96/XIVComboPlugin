@@ -146,10 +146,6 @@ namespace XIVComboPlugin
         [CustomComboInfo("Fan Dance Combos", "Change Fan Dance and Fan Dance 2 into Fan Dance 3 while flourishing", 38, new uint[] { DNC.FanDance1, DNC.FanDance2 })]
         DancerFanDanceCombo = 1L << 33,
 
-        [CustomComboInfo("Smart Dancing", "Bladeshower > AE Combo / Fountain > ST Combo / Standard & Technical Step dancing", 38)]
-        DancerDanceCombo = 1L << 54,
-
-
         // WHITE MAGE
         [CustomComboInfo("Solace into Misery", "Replaces Afflatus Solace with Afflatus Misery when Misery is ready to be used", 24, new uint[] { WHM.Solace })]
         WhiteMageSolaceMiseryFeature = 1L << 35,
@@ -165,21 +161,13 @@ namespace XIVComboPlugin
         BardStraightShotUpgradeFeature = 1L << 42,
 
         // MONK
-        [CustomComboInfo("Monk AE Combos", "Replaces Rockbreaker with Arm of the Destroyer > Twin Snakes / Four-point Fury > Rock Breaker", 20)]
-        MonkAECombo = 1L << 43,
-
-        [CustomComboInfo("Monk ST Combos", "Switching between Dragon Kick / Bootshine", 20)]
-        MonkSTCombo = 1L << 53,
 
         // RED MAGE
         [CustomComboInfo("Red Mage AoE Combo", "Replaces Veraero/thunder 2 with Impact when Dualcast or Swiftcast are active", 35, new uint[] { RDM.Veraero2, RDM.Verthunder2 })]
         RedMageAoECombo = 1L << 48,
 
-        [CustomComboInfo("Redoublement combo", "Replaces Redoublement with its combo chain, following enchantment rules", 35)]
+        [CustomComboInfo("Redoublement combo", "Replaces Redoublement with its combo chain, following enchantment rules", RDM.Job, new uint[] { RDM.Redoublement })]
         RedMageMeleeCombo = 1L << 49,
-
-        [CustomComboInfo("Red Mage ST Combo", "Replaces Verstone/Verfire with Scorch/Verholy/Verflare/Veraero/Verfire/Jolt", 35)]
-        RedMageSTCombo = 1L << 50
            
     }
 

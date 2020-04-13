@@ -1,7 +1,10 @@
-﻿namespace XIVComboPlugin.JobActions
+﻿using System.Collections.Generic;
+
+namespace XIVComboPlugin.JobActions
 {
     public static class GNB
     {
+        public const int Job = 37;
         public const uint
             SolidBarrel = 16145,
             KeenEdge = 16137,

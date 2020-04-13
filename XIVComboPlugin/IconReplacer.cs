@@ -165,6 +165,222 @@ namespace XIVComboPlugin
             return 0;
         }
 
+        private ulong MyCustomCombos(byte self, uint actionID)
+        {
+            var lastMove = Marshal.ReadInt32(lastComboMove);
+            var comboTime = Marshal.ReadInt32(comboTimer);
+            var level = Marshal.ReadByte(playerLevel);
+            var job = clientState.LocalPlayer.ClassJob.Id;
+
+            if (job == MNK.Job) {
+                UpdateBuffAddress();
+                // Rockbreaker => Arm of the Destoyer > Four-point Fury / Twin Snakes / True Strike > Rockbreaker / Snap Punch
+                if (actionID == MNK.Rockbreaker)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance))
+                        return MNK.Rockbreaker;
+
+                    if (SearchBuffArray(MNK.BuffCoeurlForm))
+                    {
+                        if (level >= MNK.LevelRockbreaker)
+                            return MNK.Rockbreaker;
+                        return MNK.SnapPunch;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffRaptorForm))
+                    {
+                        if (level >= MNK.LevelFourPointFury)
+                            return MNK.FourPointFury;
+                        if (level >= MNK.TwinSnakes && !SearchBuffArray(MNK.BuffTwinSnakes, 5))
+                            return MNK.TwinSnakes;
+                        return MNK.TrueStrike;
+                    }
+
+                    if (level >= MNK.LevelArmOfTheDestroyer)
+                        return MNK.ArmOfTheDestroyer;
+
+                    return MNK.Rockbreaker;
+                }
+
+                // Dragon Kick => Dragon Kick / Bootshine
+                if (actionID == MNK.DragonKick)
+                {
+                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
+                        return MNK.Bootshine;
+                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+                }
+
+                // Snap Punch => Dragon Kick / Bootshine > Twin Snakes / True Strike > Snap Punch
+                if (actionID == MNK.SnapPunch)
+                {
+                    if (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffCoeurlForm))
+                    {
+                        return MNK.SnapPunch;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffRaptorForm))
+                    {
+                        if (SearchBuffArray(MNK.BuffTwinSnakes, 5))
+                        {
+                            return MNK.TrueStrike;
+                        }
+                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
+                    }
+
+                    if (SearchBuffArray(MNK.BuffLeadenFist) && SearchBuffArray(MNK.BuffOpoOpoForm))
+                        return MNK.Bootshine;
+                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
+                }
+            }
+            else if (job == RDM.Job)
+            {
+                UpdateBuffAddress();
+                // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder / Jolt
+                var gauge = clientState.JobGauges.Get<RDMGauge>();
+                if (actionID == RDM.Verstone)
+                {
+                    if (comboTime > 0)
+                    {
+                        if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
+                            return RDM.Scorch;
+                        if (level >= RDM.LevelVerholy && lastMove == RDM.ERedoublement)
+                            return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verholy : RDM.Verflare;
+                    }
+                    // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
+                    if (level >= RDM.LevelVerfire && level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerfireReady) && SearchBuffArray(RDM.BuffVerstoneReady))
+                        return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verstone : RDM.Verfire;
+
+                    if (level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerstoneReady))
+                        return RDM.Verstone;
+
+                    // If we have Dualcast or Swiftcast up, evaluate based on gauges
+                    if (level >= RDM.LevelVeraero && level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                        return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Veraero : RDM.Verthunder;
+
+                    if (level >= RDM.LevelVeraero && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                        return RDM.Veraero;
+
+                    return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
+                }
+                if (actionID == RDM.Verfire)
+                {
+                    if (comboTime > 0)
+                    {
+                        if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
+                            return RDM.Scorch;
+                        if (level >= RDM.LevelVerflare && lastMove == RDM.ERedoublement)
+                            return (gauge.BlackGauge > gauge.WhiteGauge && level >= RDM.LevelVerholy) ? RDM.Verholy : RDM.Verflare;
+                    }
+                    // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
+                    if (level >= RDM.LevelVerfire && level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerfireReady) && SearchBuffArray(RDM.BuffVerstoneReady))
+                        return (gauge.BlackGauge <= gauge.WhiteGauge) ? RDM.Verfire : RDM.Verstone;
+
+                    if (level >= RDM.LevelVerfire && SearchBuffArray(RDM.BuffVerfireReady))
+                        return RDM.Verfire;
+
+                    // If we have Dualcast or Swiftcast up, evaluate based on gauges
+                    if (level >= RDM.LevelVeraero && level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                        return (gauge.BlackGauge <= gauge.WhiteGauge) ? RDM.Verthunder : RDM.Veraero;
+
+                    if (level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
+                        return RDM.Verthunder;
+                    return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
+                }
+            } else if (job == GNB.Job) {
+                var gauge = clientState.JobGauges.Get<GNBGauge>();
+                if (actionID == GNB.Continuation)
+                {
+                    if (level >= GNB.LevelContinuation)
+                    {
+                        UpdateBuffAddress();
+                        if (SearchBuffArray(GNB.BuffReadyToRip))
+                            return GNB.JugularRip;
+                        if (SearchBuffArray(GNB.BuffReadyToTear))
+                            return GNB.AbdomenTear;
+                        if (SearchBuffArray(GNB.BuffReadyToGouge))
+                            return GNB.EyeGouge;
+                    }
+                    switch (gauge.AmmoComboStepNumber)
+                    {
+                        case 1:
+                            return GNB.SavageClaw;
+                        case 2:
+                            return GNB.WickedTalon;
+                        default:
+                            return GNB.GnashingFang;
+                    }
+                }
+            }
+            else if (job == DNC.Job) {
+                UpdateBuffAddress();
+                var gauge = clientState.JobGauges.Get<DNCGauge>();
+
+                if (actionID == DNC.Bloodshower)
+                {
+                    if (gauge.IsDancing())
+                        return DNC.Jete;
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bloodshower;
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+                    return DNC.Windmill;
+                }
+
+                if (actionID == DNC.RisingWindmill)
+                {
+                    if (gauge.IsDancing())
+                        return DNC.Pirouette;
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
+                    return DNC.Windmill;
+                }
+
+                if (actionID == DNC.FountainFall)
+                {
+                    if (gauge.IsDancing())
+                        return DNC.Entrechat;
+                    if (level >= DNC.LevelFountainFall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.FountainFall;
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+                    return DNC.Cascade;
+                }
+
+                if (actionID == DNC.ReverseCascade)
+                {
+                    if (gauge.IsDancing())
+                        return DNC.Emboite;
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+                    return DNC.Cascade;
+                }
+
+                if (actionID == DNC.TechnicalStep)
+                {
+                    if (gauge.IsDancing() && SearchBuffArray(DNC.BuffTechnicalStep))
+                    {
+                        if (gauge.NumCompleteSteps >= 4)
+                            return DNC.TechnicalFinish4;
+                        return gauge.NextStep();
+                    }
+                    return DNC.TechnicalStep;
+                }
+
+                if (actionID == DNC.StandardStep)
+                {
+                    if (gauge.IsDancing() && SearchBuffArray(DNC.BuffStandardStep))
+                    {
+                        if (gauge.NumCompleteSteps >= 2)
+                            return DNC.StandardFinish2;
+                        return gauge.NextStep();
+                    }
+                    return DNC.StandardStep;
+                }
+            }
+
+            throw new Exception("Not my custom combo");
+        }
+
         /// <summary>
         ///     Replace an ability with another ability
         ///     actionID is the original ability to be "used"
@@ -186,17 +402,26 @@ namespace XIVComboPlugin
             if (!customIds.Contains(actionID)) return actionID;
             if (activeBuffArray == IntPtr.Zero) return iconHook.Original(self, actionID);
 
+            try
+            {
+                return MyCustomCombos(self, actionID);
+            }
+            catch (Exception)
+            {
+
+            }
+
             // Don't clutter the spaghetti any worse than it already is.
             var lastMove = Marshal.ReadInt32(lastComboMove);
             var comboTime = Marshal.ReadInt32(comboTimer);
             var level = Marshal.ReadByte(playerLevel);
+
             // DRAGOON
 
             // Change Jump/High Jump into Mirage Dive when Dive Ready
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DragoonJumpFeature))
                 if (actionID == DRG.Jump)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(1243))
                         return DRG.MirageDive;
                     if (level >= 74)
@@ -242,7 +467,6 @@ namespace XIVComboPlugin
                         if (lastMove == DRG.Disembowel && level >= 50) 
                             return DRG.ChaosThrust;
                     }
-                    UpdateBuffAddress();
                     if (SearchBuffArray(802) && level >= 56)
                         return DRG.FangAndClaw;
                     if (SearchBuffArray(803) && level >= 58)
@@ -266,7 +490,6 @@ namespace XIVComboPlugin
                         if (lastMove == DRG.VorpalThrust && level >= 26)
                             return DRG.FullThrust;
                     }
-                    UpdateBuffAddress();
                     if (SearchBuffArray(802) && level >= 56)
                         return DRG.FangAndClaw;
                     if (SearchBuffArray(803) && level >= 58)
@@ -401,7 +624,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiYukikazeCombo))
                 if (actionID == SAM.Yukikaze)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Yukikaze;
                     if (comboTime > 0)
@@ -414,7 +636,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiGekkoCombo))
                 if (actionID == SAM.Gekko)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Gekko;
                     if (comboTime > 0)
@@ -432,7 +653,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiKashaCombo))
                 if (actionID == SAM.Kasha)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Kasha;
                     if (comboTime > 0)
@@ -450,7 +670,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiMangetsuCombo))
                 if (actionID == SAM.Mangetsu)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Mangetsu;
                     if (comboTime > 0)
@@ -463,7 +682,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiOkaCombo))
                 if (actionID == SAM.Oka)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffMeikyoShisui))
                         return SAM.Oka;
                     if (comboTime > 0)
@@ -475,7 +693,6 @@ namespace XIVComboPlugin
             // Turn Seigan into Third Eye when not procced
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.SamuraiThirdEyeFeature))
                 if (actionID == SAM.Seigan) {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(SAM.BuffEyesOpen)) return SAM.Seigan;
                     return SAM.ThirdEye;
                 }
@@ -526,7 +743,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.NinjaAssassinateFeature))
                 if (actionID == NIN.DWAD)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(1955)) return NIN.Assassinate;
                     return NIN.DWAD;
                 }
@@ -567,6 +783,7 @@ namespace XIVComboPlugin
             {
                 if (level >= GNB.LevelContinuation)
                 {
+                    UpdateBuffAddress();
                     if (SearchBuffArray(GNB.BuffReadyToRip))
                         return GNB.JugularRip;
                     if (SearchBuffArray(GNB.BuffReadyToTear))
@@ -779,7 +996,6 @@ namespace XIVComboPlugin
                     if (gauge.TimerRemaining > 0)
                         if (gauge.IsPhoenixReady())
                         {
-                            UpdateBuffAddress();
                             if (SearchBuffArray(1867))
                                 return SMN.BrandOfPurgatory;
                             return SMN.FountainOfFire;
@@ -830,74 +1046,6 @@ namespace XIVComboPlugin
 
             // DANCER
 
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DancerDanceCombo))
-            {
-                var gauge = clientState.JobGauges.Get<DNCGauge>();
-
-                if (actionID == DNC.Bloodshower)
-                {
-                    if (gauge.IsDancing())
-                        return DNC.Jete;
-                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
-                        return DNC.Bloodshower;
-                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
-                        return DNC.Bladeshower;
-                    return DNC.Windmill;
-                }
-
-                if (actionID == DNC.RisingWindmill)
-                {
-                    if (gauge.IsDancing())
-                        return DNC.Pirouette;
-                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
-                        return DNC.RisingWindmill;
-                    return DNC.Windmill;
-                }
-
-                if (actionID == DNC.FountainFall)
-                {
-                    if (gauge.IsDancing())
-                        return DNC.Entrechat;
-                    if (level >= DNC.LevelFountainFall && SearchBuffArray(DNC.BuffFlourishingFountain))
-                        return DNC.FountainFall;
-                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
-                        return DNC.Fountain;
-                    return DNC.Cascade;
-                }
-
-                if (actionID == DNC.ReverseCascade)
-                {
-                    if (gauge.IsDancing())
-                        return DNC.Emboite;
-                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
-                        return DNC.ReverseCascade;
-                    return DNC.Cascade;
-                }
-
-                if (actionID == DNC.TechnicalStep)
-                {
-                    if (gauge.IsDancing() && SearchBuffArray(DNC.BuffTechnicalStep))
-                    {
-                        if (gauge.NumCompleteSteps >= 4)
-                            return DNC.TechnicalFinish4;
-                        return gauge.NextStep();
-                    }
-                    return DNC.TechnicalStep;
-                }
-
-                if (actionID == DNC.StandardStep)
-                {
-                    if (gauge.IsDancing() && SearchBuffArray(DNC.BuffStandardStep))
-                    {
-                        if (gauge.NumCompleteSteps >= 2)
-                            return DNC.StandardFinish2;
-                        return gauge.NextStep();
-                    }
-                    return DNC.StandardStep;
-                }
-
-            }
-
             // AoE GCDs are split into two buttons, because priority matters
             // differently in different single-target moments. Thanks yoship.
             // Replaces each GCD with its procced version.
@@ -923,7 +1071,6 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.FanDance1)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(1820))
                         return DNC.FanDance3;
                     return DNC.FanDance1;
@@ -932,7 +1079,6 @@ namespace XIVComboPlugin
                 // Fan Dance 2 changes into Fan Dance 3 while flourishing.
                 if (actionID == DNC.FanDance2)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(1820))
                         return DNC.FanDance3;
                     return DNC.FanDance2;
@@ -974,7 +1120,6 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.BardStraightShotUpgradeFeature))
                 if (actionID == BRD.HeavyShot || actionID == BRD.BurstShot)
                 {
-                    UpdateBuffAddress();
                     if (SearchBuffArray(122))
                     {
                         if (level >= 70) return BRD.RefulgentArrow;
@@ -987,123 +1132,7 @@ namespace XIVComboPlugin
 
             // MONK
 
-            // Replace Rockbreaker with Arm of the Destoyer > Twin Snakes / Four-point Fury > Rockbreaker
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.MonkAECombo))
-            {
-                if (actionID == MNK.Rockbreaker)
-                {
-                    if (SearchBuffArray(MNK.BuffPerfectBalance))
-                        return MNK.Rockbreaker;
-
-                    if (SearchBuffArray(MNK.BuffCoeurlForm))
-                    {
-                        if (level >= MNK.LevelRockbreaker)
-                            return MNK.Rockbreaker;
-                        return level >= MNK.LevelDemolish ? MNK.Demolish : MNK.SnapPunch;
-                    }
-
-                    if (SearchBuffArray(MNK.BuffRaptorForm))
-                    {
-                        return level >= MNK.LevelFourPointFury ? MNK.FourPointFury : MNK.TrueStrike;
-                    }
-
-                    if (level >= MNK.LevelArmOfTheDestroyer)
-                        return MNK.ArmOfTheDestroyer;
-
-                    return MNK.Rockbreaker;
-                }
-            }
-
-            // Monk ST Combo
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.MonkSTCombo))
-            {
-                if (actionID == MNK.DragonKick)
-                {
-                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
-                        return MNK.Bootshine;
-                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
-                }
-
-                // Snap Punch to Dragon Kick / Bootshine > Twin Snakes / True Strike > Snap Punch
-                if (actionID == MNK.SnapPunch)
-                {
-                    if (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffCoeurlForm))
-                    {
-                        return MNK.SnapPunch;
-                    }
-
-                    if (SearchBuffArray(MNK.BuffRaptorForm))
-                    {
-                        if (SearchBuffArray(MNK.BuffTwinSnakes, 5))
-                        {
-                            return MNK.TrueStrike;
-                        }
-                        return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
-                    }
-
-                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
-                        return MNK.Bootshine;
-                    return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
-                }
-
-            }
-
             // RED MAGE
-
-            // Replace Verstone / Verfire with Scorch / Verholy / Verflare / Veraero / Verthunder / Jolt
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageSTCombo))
-            {
-                var gauge = clientState.JobGauges.Get<RDMGauge>();
-                if (actionID == RDM.Verstone)
-                {
-                    if (comboTime > 0)
-                    {
-                        if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
-                            return RDM.Scorch;
-                        if (level >= RDM.LevelVerholy && lastMove == RDM.ERedoublement)
-                            return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verholy : RDM.Verflare;
-                    }
-                    // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
-                    if (level >= RDM.LevelVerfire && level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerfireReady) && SearchBuffArray(RDM.BuffVerstoneReady))
-                        return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Verstone : RDM.Verfire;
-
-                    if (level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerstoneReady))
-                        return RDM.Verstone;
-
-                    // If we have Dualcast or Swiftcast up, evaluate based on gauges
-                    if (level >= RDM.LevelVeraero && level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
-                        return (gauge.WhiteGauge <= gauge.BlackGauge) ? RDM.Veraero : RDM.Verthunder;
-
-                    if (level >= RDM.LevelVeraero && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
-                        return RDM.Veraero;
-
-                    return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
-                }
-                if (actionID == RDM.Verfire)
-                {
-                    if (comboTime > 0)
-                    {
-                        if (level >= RDM.LevelScorch && (lastMove == RDM.Verholy || lastMove == RDM.Verflare))
-                            return RDM.Scorch;
-                        if (level >= RDM.LevelVerflare && lastMove == RDM.ERedoublement)
-                            return (gauge.BlackGauge > gauge.WhiteGauge && level >= RDM.LevelVerholy) ? RDM.Verholy : RDM.Verflare;
-                    }
-                    // If we have both Verfire Ready and Verstone Ready, evaluate based on gauges
-                    if (level >= RDM.LevelVerfire && level >= RDM.LevelVerstone && SearchBuffArray(RDM.BuffVerfireReady) && SearchBuffArray(RDM.BuffVerstoneReady))
-                        return (gauge.BlackGauge <= gauge.WhiteGauge) ? RDM.Verfire : RDM.Verstone;
-
-                    if (level >= RDM.LevelVerfire && SearchBuffArray(RDM.BuffVerfireReady))
-                        return RDM.Verfire;
-
-                    // If we have Dualcast or Swiftcast up, evaluate based on gauges
-                    if (level >= RDM.LevelVeraero && level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
-                        return (gauge.BlackGauge <= gauge.WhiteGauge) ? RDM.Verthunder : RDM.Veraero;
-
-                    if (level >= RDM.LevelVerthunder && (SearchBuffArray(RDM.BuffDualCast) || SearchBuffArray(RDM.BuffSwiftCast)))
-                        return RDM.Verthunder;
-                    return (level >= RDM.LevelJolt2) ? RDM.Jolt2 : RDM.Jolt;
-                }
-            }
 
             // Replace Veraero/thunder 2 with Impact when Dualcast is active
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.RedMageAoECombo))
@@ -1167,6 +1196,8 @@ namespace XIVComboPlugin
 
         private bool SearchBuffArray(short needle, float min = -1)
         {
+
+            if (activeBuffArray == IntPtr.Zero) return false;
 
             var ptr = activeBuffArray + buffOffset;
 
