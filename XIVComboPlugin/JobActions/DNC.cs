@@ -28,7 +28,7 @@
             Cascade = 15989,
             Fountain = 15990,
             ReverseCascade = 15991,
-            FountainFall = 15992;
+            Fountainfall = 15992;
         public const short
             BuffStandardStep = 1818,
             BuffTechnicalStep = 1819,
@@ -40,7 +40,7 @@
             LevelCascade = 1,
             LevelReverseCascade = 20,
             LevelFountain = 2,
-            LevelFountainFall = 40,
+            LevelFountainfall = 40,
             LevelBladeshower = 25,
             LevelBloodshower = 45,
             LevelWindmill = 15,

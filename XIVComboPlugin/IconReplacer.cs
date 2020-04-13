@@ -288,6 +288,7 @@ namespace XIVComboPlugin
                 }
             } else if (job == GNB.Job) {
                 var gauge = clientState.JobGauges.Get<GNBGauge>();
+
                 if (actionID == GNB.Continuation)
                 {
                     if (level >= GNB.LevelContinuation)
@@ -315,43 +316,27 @@ namespace XIVComboPlugin
                 UpdateBuffAddress();
                 var gauge = clientState.JobGauges.Get<DNCGauge>();
 
+                // Bloodshower => Bloodshower > Rising Windmill > Bladeshower > Windmill
                 if (actionID == DNC.Bloodshower)
                 {
-                    if (gauge.IsDancing())
-                        return DNC.Jete;
                     if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
                         return DNC.Bloodshower;
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
                     if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
                         return DNC.Bladeshower;
                     return DNC.Windmill;
                 }
 
-                if (actionID == DNC.RisingWindmill)
+                // Fountain Fall => Fountainfall > Reverse Cascade > Fountain > Cascade
+                if (actionID == DNC.Fountainfall)
                 {
-                    if (gauge.IsDancing())
-                        return DNC.Pirouette;
-                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
-                        return DNC.RisingWindmill;
-                    return DNC.Windmill;
-                }
-
-                if (actionID == DNC.FountainFall)
-                {
-                    if (gauge.IsDancing())
-                        return DNC.Entrechat;
-                    if (level >= DNC.LevelFountainFall && SearchBuffArray(DNC.BuffFlourishingFountain))
-                        return DNC.FountainFall;
-                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
-                        return DNC.Fountain;
-                    return DNC.Cascade;
-                }
-
-                if (actionID == DNC.ReverseCascade)
-                {
-                    if (gauge.IsDancing())
-                        return DNC.Emboite;
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.Fountainfall;
                     if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
                         return DNC.ReverseCascade;
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
                     return DNC.Cascade;
                 }
 
@@ -376,6 +361,7 @@ namespace XIVComboPlugin
                     }
                     return DNC.StandardStep;
                 }
+
             }
 
             throw new Exception("Not my custom combo");
@@ -1240,9 +1226,9 @@ namespace XIVComboPlugin
             // Dancer
             customIds.Add(DNC.StandardStep);
             customIds.Add(DNC.TechnicalStep);
-            customIds.Add(DNC.ReverseCascade);
-            customIds.Add(DNC.FountainFall);
-            customIds.Add(DNC.RisingWindmill);
+            // customIds.Add(DNC.ReverseCascade);
+            customIds.Add(DNC.Fountainfall);
+            // customIds.Add(DNC.RisingWindmill);
             customIds.Add(DNC.Bloodshower);
             customIds.Add(DNC.FanDance1);
             customIds.Add(DNC.FanDance2);
