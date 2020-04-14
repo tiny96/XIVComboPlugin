@@ -1270,9 +1270,9 @@ namespace XIVComboPlugin
             // Dancer
             customIds.Add(DNC.StandardStep);
             customIds.Add(DNC.TechnicalStep);
-            // customIds.Add(DNC.ReverseCascade);
+            customIds.Add(DNC.ReverseCascade);
             customIds.Add(DNC.Fountainfall);
-            // customIds.Add(DNC.RisingWindmill);
+            customIds.Add(DNC.RisingWindmill);
             customIds.Add(DNC.Bloodshower);
             customIds.Add(DNC.FanDance1);
             customIds.Add(DNC.FanDance2);
