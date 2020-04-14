@@ -8,6 +8,7 @@
             Bloodshower = 15996,
             Windmill = 15993,
             RisingWindmill = 15995,
+            SaberDance = 16005,
             FanDance1 = 16007,
             FanDance3 = 16009,
             FanDance2 = 16008,
@@ -32,10 +33,13 @@
         public const short
             BuffStandardStep = 1818,
             BuffTechnicalStep = 1819,
+            BuffStandardFinish = 1821,
+            BuffTechnicalFinish = 1822,
             BuffFlourishingCascade = 1814,
             BuffFlourishingFountain = 1815,
             BuffFlourishingWindmill = 1816,
-            BuffFlourishingShower = 1817;
+            BuffFlourishingShower = 1817,
+            BuffFlourishingFanDance = 1820;
         public const byte
             LevelCascade = 1,
             LevelReverseCascade = 20,
@@ -49,6 +53,7 @@
             LevelTechnicalStep = 70,
             LevelFanDance1 = 30,
             LevelFanDance2 = 50,
-            LevelFanDance3 = 66;
+            LevelFanDance3 = 66,
+            LevelSaberDance = 76;
     }
 }

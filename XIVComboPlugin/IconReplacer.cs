@@ -319,68 +319,6 @@ namespace XIVComboPlugin
                 UpdateBuffAddress();
                 var gauge = clientState.JobGauges.Get<DNCGauge>();
 
-                // Bloodshower => Bloodshower > Rising Windmill > Bladeshower > Windmill (priority to spend flourish)
-                if (actionID == DNC.Bloodshower)
-                {
-                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
-                        return DNC.Bloodshower;
-                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
-                        return DNC.Bladeshower;
-
-                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
-                        return DNC.RisingWindmill;
-                    return DNC.Windmill;
-                }
-
-                // Rising Windmill => Bloodshower > Rising Windmill > Bladeshower > Windmill (priority to build flourish)
-                if (actionID == DNC.RisingWindmill)
-                {
-                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill && !SearchBuffArray(DNC.BuffFlourishingShower))
-                        return DNC.Bladeshower;
-                    if (!SearchBuffArray(DNC.BuffFlourishingWindmill))
-                        return DNC.Windmill;
-
-                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
-                        return DNC.Bloodshower;
-                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
-                        return DNC.RisingWindmill;
-
-                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
-                        return DNC.Bladeshower;
-                    return DNC.Windmill;
-                }
-
-                // Fountain Fall => Fountainfall > Reverse Cascade > Fountain > Cascade (priority to spend flourish)
-                if (actionID == DNC.Fountainfall)
-                {
-                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
-                        return DNC.Fountainfall;
-                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
-                        return DNC.Fountain;
-
-                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
-                        return DNC.ReverseCascade;
-                    return DNC.Cascade;
-                }
-
-                // Reverse Cascade => Fountainfall > Reverse Cascade > Fountain > Cascade (priority to build flourish)
-                if (actionID == DNC.ReverseCascade)
-                {
-                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade && !SearchBuffArray(DNC.BuffFlourishingFountain))
-                        return DNC.Fountain;
-                    if (!SearchBuffArray(DNC.BuffFlourishingCascade))
-                        return DNC.Cascade;
-
-                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
-                        return DNC.Fountainfall;
-                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
-                        return DNC.ReverseCascade;
-
-                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
-                        return DNC.Fountain;
-                    return DNC.Cascade;
-                }
-
                 if (actionID == DNC.TechnicalStep)
                 {
                     if (gauge.IsDancing() && SearchBuffArray(DNC.BuffTechnicalStep))
@@ -401,6 +339,146 @@ namespace XIVComboPlugin
                         return gauge.NextStep();
                     }
                     return DNC.StandardStep;
+                }
+
+                // Single Target - focus on building procs
+                if (actionID == DNC.ReverseCascade)
+                {
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain, 0, 3))
+                        return DNC.Fountainfall;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade, 0, 3))
+                        return DNC.ReverseCascade;
+
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.Fountainfall;
+
+                    if (level >= DNC.LevelFountain && comboTime > 0 && comboTime <= 3 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+
+                    return DNC.Cascade;
+                }
+
+                // Single Target - focus on burning procs
+                if (actionID == DNC.Fountainfall)
+                {
+
+                    if (level >= DNC.LevelFanDance1 && gauge.NumFeathers >= 4)
+                        return (level >= DNC.LevelFanDance3 && SearchBuffArray(DNC.BuffFlourishingFanDance)) ? DNC.FanDance3 : DNC.FanDance1;
+
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain, 0,3))
+                        return DNC.Fountainfall;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower, 0, 3))
+                        return DNC.Bloodshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill, 0, 3))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade, 0, 3))
+                        return DNC.ReverseCascade;
+
+                    if (level >= DNC.LevelSaberDance && gauge.Esprit > 80)
+                        return DNC.SaberDance;
+
+                    if (level >= DNC.LevelSaberDance && gauge.Esprit > 50 && SearchBuffArray(DNC.BuffTechnicalFinish))
+                        return DNC.SaberDance;
+
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.Fountainfall;
+
+                    if (level >= DNC.LevelFountain && comboTime > 0 && comboTime <= 3 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bloodshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+
+                    return DNC.Cascade;
+                }
+
+                // AE - with ST spenders
+                if (actionID == DNC.RisingWindmill)
+                {
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain, 0, 3))
+                        return DNC.Fountainfall;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower, 0, 3))
+                        return DNC.Bloodshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill, 0, 3))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade, 0, 3))
+                        return DNC.ReverseCascade;
+
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.Fountainfall;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bloodshower;
+
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && comboTime <= 3 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+
+                    return DNC.Windmill;
+                }
+
+                // AE - without ST spenders
+                if (actionID == DNC.Bloodshower)
+                {
+
+                    if (level >= DNC.LevelFanDance2 && gauge.NumFeathers >= 4)
+                        return (level >= DNC.LevelFanDance3 && SearchBuffArray(DNC.BuffFlourishingFanDance)) ? DNC.FanDance3 : DNC.FanDance2;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower, 0, 3))
+                        return DNC.Bloodshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill, 0, 3))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelSaberDance && gauge.Esprit > 80)
+                        return DNC.SaberDance;
+
+                    if (level >= DNC.LevelSaberDance && gauge.Esprit > 50 && SearchBuffArray(DNC.BuffTechnicalFinish))
+                        return DNC.SaberDance;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bloodshower;
+
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && comboTime <= 3 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+
+                    return DNC.Windmill;
                 }
 
             }
@@ -1226,7 +1304,7 @@ namespace XIVComboPlugin
             }
         }
 
-        private bool SearchBuffArray(short needle, float min = -1)
+        private bool SearchBuffArray(short needle, float min = 0, float max = 99999)
         {
 
             if (activeBuffArray == IntPtr.Zero) return false;
@@ -1238,7 +1316,8 @@ namespace XIVComboPlugin
                 var info = Marshal.PtrToStructure<BuffInfo>(ptr);
                 if (info.buff == needle)
                 {
-                    return min == -1 || Math.Abs(info.duration) >= min;
+                    var dur = Math.Abs(info.duration);
+                    return dur >= min && dur <= max;
                 }
                 ptr += BuffInfoSize;
             }
