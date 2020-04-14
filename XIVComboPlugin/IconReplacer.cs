@@ -369,9 +369,6 @@ namespace XIVComboPlugin
                 if (actionID == DNC.Fountainfall)
                 {
 
-                    if (level >= DNC.LevelFanDance1 && gauge.NumFeathers >= 4)
-                        return (level >= DNC.LevelFanDance3 && SearchBuffArray(DNC.BuffFlourishingFanDance)) ? DNC.FanDance3 : DNC.FanDance1;
-
                     if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain, 0,3))
                         return DNC.Fountainfall;
 
@@ -450,9 +447,6 @@ namespace XIVComboPlugin
                 // AE - without ST spenders
                 if (actionID == DNC.Bloodshower)
                 {
-
-                    if (level >= DNC.LevelFanDance2 && gauge.NumFeathers >= 4)
-                        return (level >= DNC.LevelFanDance3 && SearchBuffArray(DNC.BuffFlourishingFanDance)) ? DNC.FanDance3 : DNC.FanDance2;
 
                     if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower, 0, 3))
                         return DNC.Bloodshower;
