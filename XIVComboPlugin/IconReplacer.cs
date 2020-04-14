@@ -324,15 +324,16 @@ namespace XIVComboPlugin
                 {
                     if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
                         return DNC.Bloodshower;
-                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
-                        return DNC.RisingWindmill;
                     if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
                         return DNC.Bladeshower;
+
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
                     return DNC.Windmill;
                 }
 
                 // Rising Windmill => Bloodshower > Rising Windmill > Bladeshower > Windmill (priority to build flourish)
-                if (actionID == DNC.Bloodshower)
+                if (actionID == DNC.RisingWindmill)
                 {
                     if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill && !SearchBuffArray(DNC.BuffFlourishingShower))
                         return DNC.Bladeshower;
@@ -354,15 +355,16 @@ namespace XIVComboPlugin
                 {
                     if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
                         return DNC.Fountainfall;
-                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
-                        return DNC.ReverseCascade;
                     if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
                         return DNC.Fountain;
+
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
                     return DNC.Cascade;
                 }
 
                 // Reverse Cascade => Fountainfall > Reverse Cascade > Fountain > Cascade (priority to build flourish)
-                if (actionID == DNC.Fountainfall)
+                if (actionID == DNC.ReverseCascade)
                 {
                     if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade && !SearchBuffArray(DNC.BuffFlourishingFountain))
                         return DNC.Fountain;
