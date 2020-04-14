@@ -319,7 +319,7 @@ namespace XIVComboPlugin
                 UpdateBuffAddress();
                 var gauge = clientState.JobGauges.Get<DNCGauge>();
 
-                // Bloodshower => Bloodshower > Rising Windmill > Bladeshower > Windmill
+                // Bloodshower => Bloodshower > Rising Windmill > Bladeshower > Windmill (priority to spend flourish)
                 if (actionID == DNC.Bloodshower)
                 {
                     if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
@@ -331,13 +331,49 @@ namespace XIVComboPlugin
                     return DNC.Windmill;
                 }
 
-                // Fountain Fall => Fountainfall > Reverse Cascade > Fountain > Cascade
+                // Rising Windmill => Bloodshower > Rising Windmill > Bladeshower > Windmill (priority to build flourish)
+                if (actionID == DNC.Bloodshower)
+                {
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill && !SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bladeshower;
+                    if (!SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.Windmill;
+
+                    if (level >= DNC.LevelBloodshower && SearchBuffArray(DNC.BuffFlourishingShower))
+                        return DNC.Bloodshower;
+                    if (level >= DNC.LevelRisingWindmill && SearchBuffArray(DNC.BuffFlourishingWindmill))
+                        return DNC.RisingWindmill;
+
+                    if (level >= DNC.LevelBladeshower && comboTime > 0 && lastMove == DNC.Windmill)
+                        return DNC.Bladeshower;
+                    return DNC.Windmill;
+                }
+
+                // Fountain Fall => Fountainfall > Reverse Cascade > Fountain > Cascade (priority to spend flourish)
                 if (actionID == DNC.Fountainfall)
                 {
                     if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
                         return DNC.Fountainfall;
                     if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
                         return DNC.ReverseCascade;
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
+                        return DNC.Fountain;
+                    return DNC.Cascade;
+                }
+
+                // Reverse Cascade => Fountainfall > Reverse Cascade > Fountain > Cascade (priority to build flourish)
+                if (actionID == DNC.Fountainfall)
+                {
+                    if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade && !SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.Fountain;
+                    if (!SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.Cascade;
+
+                    if (level >= DNC.LevelFountainfall && SearchBuffArray(DNC.BuffFlourishingFountain))
+                        return DNC.Fountainfall;
+                    if (level >= DNC.LevelReverseCascade && SearchBuffArray(DNC.BuffFlourishingCascade))
+                        return DNC.ReverseCascade;
+
                     if (level >= DNC.LevelFountain && comboTime > 0 && lastMove == DNC.Cascade)
                         return DNC.Fountain;
                     return DNC.Cascade;
