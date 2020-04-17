@@ -175,7 +175,32 @@ namespace XIVComboPlugin
             var level = Marshal.ReadByte(playerLevel);
             var job = clientState.LocalPlayer.ClassJob.Id;
 
-            if (job == MNK.Job) {
+            if (job == PLD.Job)
+            {
+                UpdateBuffAddress();
+                // Holy Spirt => Confiteor (when Requiescat is down to 2s or less)
+                if (level >= PLD.LevelConfiteor)
+                {
+                    if (actionID == PLD.HolySpirit)
+                    {
+                        if (SearchBuffArray(PLD.BuffRequiescat, 0, 2) || SearchBuffArray(PLD.BuffEnhancedRequiescat, 0, 2))
+                        {
+                            return PLD.Confiteor;
+                        }
+                    }
+
+                    // Holy Circle => Confiteor (when Requiescat is down to 2s or less)
+                    if (actionID == PLD.HolyCircle)
+                    {
+                        if (SearchBuffArray(PLD.BuffRequiescat, 0, 2) || SearchBuffArray(PLD.BuffEnhancedRequiescat, 0, 2))
+                        {
+                            return PLD.Confiteor;
+                        }
+                    }
+                }
+            }
+            else if (job == MNK.Job)
+            {
                 UpdateBuffAddress();
                 // Rockbreaker => Arm of the Destoyer > Four-point Fury / Twin Snakes / True Strike > Rockbreaker / Snap Punch
                 if (actionID == MNK.Rockbreaker)
@@ -208,7 +233,7 @@ namespace XIVComboPlugin
                 // Dragon Kick => Dragon Kick / Bootshine
                 if (actionID == MNK.DragonKick)
                 {
-                    if (SearchBuffArray(MNK.BuffLeadenFist) && (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffOpoOpoForm)))
+                    if (SearchBuffArray(MNK.BuffLeadenFist))
                         return MNK.Bootshine;
                     return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
                 }
@@ -230,7 +255,7 @@ namespace XIVComboPlugin
                         return level >= MNK.LevelTwinSnakes ? MNK.TwinSnakes : MNK.TrueStrike;
                     }
 
-                    if (SearchBuffArray(MNK.BuffLeadenFist) && SearchBuffArray(MNK.BuffOpoOpoForm))
+                    if (SearchBuffArray(MNK.BuffLeadenFist))
                         return MNK.Bootshine;
                     return level >= MNK.LevelDragonKick ? MNK.DragonKick : MNK.Bootshine;
                 }
@@ -1340,8 +1365,12 @@ namespace XIVComboPlugin
             return (IntPtr) callback((long*) num);
         }
 
-        private void PopulateDict()
+        private void PopulateMyCustomDict()
         {
+            // Paladin
+            customIds.Add(PLD.HolySpirit);
+            customIds.Add(PLD.HolyCircle);
+
             // Dancer
             customIds.Add(DNC.StandardStep);
             customIds.Add(DNC.TechnicalStep);
@@ -1358,6 +1387,12 @@ namespace XIVComboPlugin
             // Red Mage
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);
+
+        }
+
+        private void PopulateDict()
+        {
+            PopulateMyCustomDict();
 
             customIds.Add(16477);
             customIds.Add(88);
