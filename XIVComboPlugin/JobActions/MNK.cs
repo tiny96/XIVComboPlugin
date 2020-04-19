@@ -10,6 +10,7 @@
             DragonKick = 74,
             TwinSnakes = 61,
             Demolish = 66,
+            AOTD = 62,
             ArmOfTheDestroyer = 62,
             FourPointFury = 16473,
             Rockbreaker = 70;
