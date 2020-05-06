@@ -184,27 +184,38 @@ namespace XIVComboPlugin
                     if (actionID == PLD.HolySpirit)
                     {
                         if (SearchBuffArray(PLD.BuffRequiescat, 0, 2) || SearchBuffArray(PLD.BuffEnhancedRequiescat, 0, 2))
-                        {
                             return PLD.Confiteor;
-                        }
                     }
 
                     // Holy Circle => Confiteor (when Requiescat is down to 2s or less)
                     if (actionID == PLD.HolyCircle)
                     {
                         if (SearchBuffArray(PLD.BuffRequiescat, 0, 2) || SearchBuffArray(PLD.BuffEnhancedRequiescat, 0, 2))
-                        {
                             return PLD.Confiteor;
-                        }
                     }
                 }
             }
             else if (job == MNK.Job)
             {
                 UpdateBuffAddress();
+
+                if (actionID == MNK.FistsOfFire)
+                {
+                    if (level >= MNK.LevelFistsOfWind && SearchBuffArray(MNK.BuffFistsOfFire))
+                        return MNK.FistsOfWind;
+                    return MNK.FistsOfFire;
+                }
+
                 // Rockbreaker => Arm of the Destoyer > Four-point Fury / Twin Snakes / True Strike > Rockbreaker / Snap Punch
                 if (actionID == MNK.Rockbreaker)
                 {
+                    var gauge = clientState.JobGauges.Get<MNKGauge>();
+
+                    if (level >= MNK.LevelRiddleOfWind && gauge.NumGLStacks >= 3 && !SearchBuffArray(MNK.BuffFistsOfWind))
+                        return MNK.FistsOfWind;
+                    if (level >= MNK.LevelFistsOfFire && gauge.NumGLStacks < 3 && !SearchBuffArray(MNK.BuffFistsOfFire))
+                        return MNK.FistsOfFire;
+
                     if (SearchBuffArray(MNK.BuffPerfectBalance))
                         return MNK.Rockbreaker;
 
@@ -241,10 +252,15 @@ namespace XIVComboPlugin
                 // Snap Punch => Dragon Kick / Bootshine > Twin Snakes / True Strike > Snap Punch
                 if (actionID == MNK.SnapPunch)
                 {
+                    var gauge = clientState.JobGauges.Get<MNKGauge>();
+
+                    if (level >= MNK.LevelRiddleOfWind && gauge.NumGLStacks >= 3 && !SearchBuffArray(MNK.BuffFistsOfWind))
+                        return MNK.FistsOfWind;
+                    if (level >= MNK.LevelFistsOfFire && gauge.NumGLStacks < 3 && !SearchBuffArray(MNK.BuffFistsOfFire))
+                        return MNK.FistsOfFire;
+
                     if (SearchBuffArray(MNK.BuffPerfectBalance) || SearchBuffArray(MNK.BuffCoeurlForm))
-                    {
                         return MNK.SnapPunch;
-                    }
 
                     if (SearchBuffArray(MNK.BuffRaptorForm))
                     {
@@ -339,8 +355,7 @@ namespace XIVComboPlugin
                             return GNB.GnashingFang;
                     }
                 }
-            }
-            else if (job == DNC.Job) {
+            } else if (job == DNC.Job) {
                 UpdateBuffAddress();
                 var gauge = clientState.JobGauges.Get<DNCGauge>();
 
@@ -1414,6 +1429,7 @@ namespace XIVComboPlugin
             customIds.Add(MNK.SnapPunch);
             customIds.Add(MNK.DragonKick);
             customIds.Add(MNK.Rockbreaker);
+            customIds.Add(MNK.FistsOfFire);
             // Red Mage
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);

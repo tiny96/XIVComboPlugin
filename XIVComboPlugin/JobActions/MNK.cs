@@ -13,7 +13,10 @@
             AOTD = 62,
             ArmOfTheDestroyer = 62,
             FourPointFury = 16473,
-            Rockbreaker = 70;
+            Rockbreaker = 70,
+            FistsOfEarth = 60,
+            FistsOfWind = 73,
+            FistsOfFire = 63;
         public const short
             BuffOpoOpoForm = 107,
             BuffRaptorForm = 108,
@@ -23,7 +26,10 @@
             BuffGreasedLightning = 111,
             BuffGreasedLightning2 = 112,
             BuffGreasedLightning3 = 113,
-            BuffLeadenFist = 1861;
+            BuffLeadenFist = 1861,
+            BuffFistsOfEarth = 104,
+            BuffFistsOfFire = 103,
+            BuffFistsOfWind = 105;
         public const byte
             LevelBootshine = 1,
             LevelTrueStrike = 4,
@@ -33,6 +39,10 @@
             LevelDemolish = 30,
             LevelArmOfTheDestroyer = 26,
             LevelFourPointFury = 45,
-            LevelRockbreaker = 30;
+            LevelRockbreaker = 30,
+            LevelRiddleOfWind = 76,
+            LevelFistsOfEarth = 15,
+            LevelFistsOfWind = 34,
+            LevelFistsOfFire = 40;
     }
 }
