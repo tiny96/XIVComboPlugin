@@ -15,6 +15,7 @@
         public const uint
             HolySpirit = 7384,
             HolyCircle = 16458,
+            Requiescat = 7383,
             Confiteor = 16459;
         public const short
             BuffRequiescat = 1368,

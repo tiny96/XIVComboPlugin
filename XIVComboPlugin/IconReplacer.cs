@@ -10,6 +10,7 @@ using Serilog;
 using System.Threading.Tasks;
 using System.Threading;
 using Dalamud.Plugin;
+using System.Dynamic;
 
 namespace XIVComboPlugin
 {
@@ -43,6 +44,7 @@ namespace XIVComboPlugin
         private byte lastJob = 0;
 
         private readonly IntPtr BuffVTableAddr;
+        private float ping;
 
         private unsafe delegate int* getArray(long* address);
 
@@ -63,6 +65,7 @@ namespace XIVComboPlugin
 
         public IconReplacer(SigScanner scanner, ClientState clientState, XIVComboConfiguration configuration)
         {
+            ping = 0;
             shutdown = false;
             Configuration = configuration;
             this.clientState = clientState;
@@ -143,9 +146,7 @@ namespace XIVComboPlugin
                     seenNoUpdate.Remove(id);
             }
         }
-
-
-        public void BuffTask()
+        private void BuffTask()
         {
             while (!shutdown)
             {
@@ -557,7 +558,7 @@ namespace XIVComboPlugin
 
             // Don't clutter the spaghetti any worse than it already is.
             var lastMove = Marshal.ReadInt32(lastComboMove);
-            var comboTime = Marshal.ReadInt32(comboTimer);
+            var comboTime = Marshal.PtrToStructure<float>(comboTimer);
             var level = Marshal.ReadByte(playerLevel);
 
             // DRAGOON
@@ -581,6 +582,7 @@ namespace XIVComboPlugin
                         if (clientState.JobGauges.Get<DRGGauge>().BOTDState == BOTDState.LOTD)
                             return DRG.Stardiver;
                     return DRG.BOTD;
+                    
                 }
 
             // Replace Coerthan Torment with Coerthan Torment combo chain
@@ -718,6 +720,15 @@ namespace XIVComboPlugin
                             return PLD.Prominence;
 
                     return PLD.TotalEclipse;
+                }
+            
+            // Replace Requiescat with Confiteor when under the effect of Requiescat
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.PaladinRequiescatCombo))
+                if (actionID == PLD.Requiescat)
+                {
+                    if (SearchBuffArray(1368) && level >= 80)
+                        return PLD.Confiteor;
+                    return PLD.Requiescat;
                 }
 
             // WARRIOR
@@ -1034,6 +1045,15 @@ namespace XIVComboPlugin
                     if (gauge.InUmbralIce() && gauge.IsEnoActive() && level >= 76)
                         return BLM.UmbralSoul;
                     return BLM.Transpose;
+                }
+
+            // Ley Lines and BTL
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.BlackLeyLines))
+                if (actionID == BLM.LeyLines)
+                {
+                    if (SearchBuffArray(737) && level >= 62)
+                        return BLM.BTL;
+                    return BLM.LeyLines;
                 }
 
             // ASTROLOGIAN
@@ -1407,7 +1427,7 @@ namespace XIVComboPlugin
             var step2 = (IntPtr) (Marshal.ReadInt64(num) + 0x270);
             var step3 = Marshal.ReadIntPtr(step2);
             var callback = Marshal.GetDelegateForFunctionPointer<getArray>(step3);
-            return (IntPtr) callback((long*) num);
+            return (IntPtr) callback((long*) num) + 8;
         }
 
         private void PopulateMyCustomDict()
@@ -1495,6 +1515,8 @@ namespace XIVComboPlugin
             customIds.Add(RDM.Verstone);
             customIds.Add(RDM.Verfire);
             customIds.Add(MNK.Rockbreaker);
+            customIds.Add(BLM.LeyLines);
+            customIds.Add(PLD.Requiescat);
             vanillaIds.Add(0x3e75);
             vanillaIds.Add(0x3e76);
             vanillaIds.Add(0x3e86);
