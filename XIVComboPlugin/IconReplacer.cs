@@ -58,7 +58,7 @@ namespace XIVComboPlugin
             public float duration;
             public int provider;
         }
-        private int buffOffset = 8;
+        private int buffOffset = 0;
         private int BuffInfoSize = sizeof(short) + sizeof(short) + sizeof(float) + sizeof(int);
 
         private short lastDump = -1;
@@ -1395,7 +1395,7 @@ namespace XIVComboPlugin
 
             var ptr = activeBuffArray + buffOffset;
 
-            for (var i = 0; i < 30; i++)
+            for (var i = 0; i < 60; i++)
             {
                 var info = Marshal.PtrToStructure<BuffInfo>(ptr);
                 if (info.buff == needle)
