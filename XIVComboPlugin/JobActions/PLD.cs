@@ -9,22 +9,27 @@
             RoyalAuthority = 3539,
             RageOfHalone = 21,
             Prominence = 16457,
-            TotalEclipse = 7381;
-
-        public const int Job = 19;
-        public const uint
+            TotalEclipse = 7381,
             HolySpirit = 7384,
             HolyCircle = 16458,
             Requiescat = 7383,
-            Confiteor = 16459;
+            Confiteor = 16459,
+            Atonement = 16460;
+
+        public const int Job = 19;
         public const short
             BuffRequiescat = 1368,
-            BuffEnhancedRequiescat = 1369;
+            BuffEnhancedRequiescat = 1369,
+            BuffShieldOath = 1395;
         public const byte
-            LevelRequiescat = 68,
-            LevelEnhancedRequiescat = 78,
+            LevelRiotBlade = 4,
+            LevelRageOfHalone = 26,
+            LevelRoyalAuthority = 60,
             LevelHolySpirit = 64,
+            LevelRequiescat = 68,
             LevelHolyCircle = 72,
+            LevelAtonement = 76,
+            LevelEnhancedRequiescat = 78,
             LevelConfiteor = 80;
     }
 }

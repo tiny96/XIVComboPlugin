@@ -198,6 +198,27 @@ namespace XIVComboPlugin
                             return PLD.Confiteor;
                     }
                 }
+                // Replace Atonement with Royal Authority combo + Atonement
+                if (actionID == PLD.Atonement)
+                {
+                    if (level >= PLD.LevelAtonement && SearchBuffArray(PLD.BuffShieldOath))
+                        return PLD.Atonement;
+
+                    if (comboTime > 0)
+                    {
+                        if (lastMove == PLD.FastBlade && level >= PLD.LevelRiotBlade)
+                            return PLD.RiotBlade;
+                        if (lastMove == PLD.RiotBlade)
+                        {
+                            if (level >= PLD.LevelRoyalAuthority)
+                                return PLD.RoyalAuthority;
+                            if (level >= PLD.LevelRageOfHalone)
+                                return PLD.RageOfHalone;
+                        }
+                    }
+                    return PLD.FastBlade;
+                }
+
             }
             else if (job == MNK.Job)
             {
