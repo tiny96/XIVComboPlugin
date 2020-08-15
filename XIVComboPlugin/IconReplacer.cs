@@ -8,9 +8,6 @@ using Dalamud.Hooking;
 using XIVComboPlugin.JobActions;
 using Serilog;
 using System.Threading.Tasks;
-using System.Threading;
-using Dalamud.Plugin;
-using System.Dynamic;
 
 namespace XIVComboPlugin
 {
@@ -51,6 +48,7 @@ namespace XIVComboPlugin
         private bool shutdown;
 
         private Hook<OnRequestActionDetour> requestActionHook;
+
         private struct BuffInfo
         {
             public short buff;
@@ -173,25 +171,30 @@ namespace XIVComboPlugin
         {
             var lastMove = Marshal.ReadInt32(lastComboMove);
             var comboTime = Marshal.ReadInt32(comboTimer);
-            var level = Marshal.ReadByte(playerLevel);
+            var level = clientState.LocalPlayer.Level;
             var job = clientState.LocalPlayer.ClassJob.Id;
+            var mp = clientState.LocalPlayer.CurrentMp;
 
             if (job == PLD.Job)
             {
                 UpdateBuffAddress();
-                // Holy Spirt => Confiteor (when Requiescat is down to 2s or less)
+                // Holy Spirt => Confiteor (when Requiescat is down to 2s or less / MP is just enough to cast a Confiteor)
                 if (level >= PLD.LevelConfiteor)
                 {
                     if (actionID == PLD.HolySpirit)
                     {
                         if (SearchBuffArray(PLD.BuffRequiescat, 0, 2) || SearchBuffArray(PLD.BuffEnhancedRequiescat, 0, 2))
                             return PLD.Confiteor;
+                        if ((SearchBuffArray(PLD.BuffRequiescat) || SearchBuffArray(PLD.BuffEnhancedRequiescat)) && mp < 4000)
+                            return PLD.Confiteor;
                     }
 
-                    // Holy Circle => Confiteor (when Requiescat is down to 2s or less)
+                    // Holy Circle => Confiteor (when Requiescat is down to 2s or less / MP is just enough to cast a Confiteor)
                     if (actionID == PLD.HolyCircle)
                     {
                         if (SearchBuffArray(PLD.BuffRequiescat, 0, 2) || SearchBuffArray(PLD.BuffEnhancedRequiescat, 0, 2))
+                            return PLD.Confiteor;
+                        if ((SearchBuffArray(PLD.BuffRequiescat) || SearchBuffArray(PLD.BuffEnhancedRequiescat)) && mp < 4000)
                             return PLD.Confiteor;
                     }
                 }
@@ -1379,13 +1382,12 @@ namespace XIVComboPlugin
             {
                 Log.Information($"Dumping >> {foundBuff}");
                 var buffPtr = activeBuffArray + buffOffset;
-                for (var i = 0; i < 30; i++)
+                for (var i = 0; i < 60; i++)
                 {
                     var info = Marshal.PtrToStructure<BuffInfo>(buffPtr);
                     Log.Information($"Buff #{i,2} {info.buff} {info.duration:f}");
-                    buffPtr += (sizeof(short) + sizeof(short) + sizeof(float) + sizeof(int));
+                    buffPtr += BuffInfoSize;
                 }
-
 
                 lastDump = foundBuff;
             }
